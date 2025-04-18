@@ -5,7 +5,8 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
 
-export const getUserProfile = asyncHandler(async (req, res) => {
+export const getUserProfileById = asyncHandler(async (req, res) => {
+    console.log("coming inside getUserProfileById");
     const { id } = req.params;
     if (isValidObjectId(id)) {
         throw new ApiError(400, "Invalid user id");
@@ -17,7 +18,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: "Profile Fetched successfully", user });
 });
 
-export const editUserProfile = asyncHandler(async (req, res) => {
+export const editOwnProfile = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId;
 
     const { bio, gender } = req.body;
