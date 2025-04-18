@@ -5,15 +5,15 @@ import upload from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 
-router.get("/", requireAuth, getAllPosts); // get all posts
-router.post("/", requireAuth, upload.single("image"), createPost); // create new post
-router.get("/:postId", requireAuth, getPost); // get single post
-router.patch("/:postId", requireAuth, upload.single("image"), updatePost); // update post
-router.delete("/:postId", requireAuth, deletePost); // delete post
+router.get("/", requireAuth(), getAllPosts); // get all posts
+router.post("/", requireAuth(), upload.single("image"), createPost); // create new post
+router.get("/:postId", requireAuth(), getPost); // get single post
+router.patch("/:postId", requireAuth(), upload.single("image"), updatePost); // update post
+router.delete("/:postId", requireAuth(), deletePost); // delete post
 
-router.get("/user/:userId", requireAuth, getUserPosts); // get user posts
+router.get("/user/:userId", requireAuth(), getUserPosts); // get user posts
 
-router.post("/toggleLike/:postId", requireAuth, toggleLikePost); // like or unlike post
-router.post("/bookmark/:postId", requireAuth, toggleBookmarkPost); // bookmark or unbookmark post
+router.post("/toggleLike/:postId", requireAuth(), toggleLikePost); // like or unlike post
+router.post("/bookmark/:postId", requireAuth(), toggleBookmarkPost); // bookmark or unbookmark post
 
 export default router;
