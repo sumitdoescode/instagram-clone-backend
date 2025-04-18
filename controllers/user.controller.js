@@ -19,6 +19,7 @@ export const getUserProfileById = asyncHandler(async (req, res) => {
 });
 
 export const editOwnProfile = asyncHandler(async (req, res) => {
+    console.log("coming inside editOwnProfile");
     const clerkId = req.auth.userId;
 
     const { bio, gender } = req.body;
@@ -50,6 +51,7 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
 });
 
 export const usersToFollow = asyncHandler(async (req, res) => {
+    console.log("coming inside usersToFollow");
     const clerkId = req.auth.userId;
 
     // 1. Find the current user with their following list
@@ -89,6 +91,7 @@ export const usersToFollow = asyncHandler(async (req, res) => {
 });
 
 export const followOrUnfollowUser = asyncHandler(async (req, res) => {
+    console.log("coming inside followOrUnfollowUser");
     const clerkId = req.auth.userId;
 
     if (!clerkId) {
