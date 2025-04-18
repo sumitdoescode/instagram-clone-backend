@@ -7,9 +7,9 @@ const router = express.Router();
 
 // here id is mongodb id of user
 // prefix is /api/v1/user
-router.get("/:id", requireAuth, getUserProfileById); // get user profile by id
-router.put("/", requireAuth, upload.single("profileImage"), editOwnProfile); // edit user profile(self)
-router.get("/usersToFollow", requireAuth, usersToFollow); // get users to follow
-router.post("/followOrUnfollow/:id", requireAuth, followOrUnfollowUser); // follow or unfollow user
+router.get("/:id", requireAuth(), getUserProfileById); // get user profile by id
+router.put("/", requireAuth(), upload.single("profileImage"), editOwnProfile); // edit user profile(self)
+router.get("/usersToFollow", requireAuth(), usersToFollow); // get users to follow
+router.post("/followOrUnfollow/:id", requireAuth(), followOrUnfollowUser); // follow or unfollow user
 
 export default router;
