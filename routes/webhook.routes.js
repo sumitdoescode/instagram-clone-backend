@@ -6,10 +6,12 @@ import { Webhook } from "svix";
 const router = express.Router();
 
 // Clerk sends raw JSON so we need to parse it as raw
+// prefix = "/api/v1/webhook"
 router.post(
     "/clerk",
     express.raw({ type: "*/*" }),
     asyncHandler(async (req, res) => {
+        console.log("coming inside webhook.routes.js");
         const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
         const payload = req.body;
         const headers = req.headers;
