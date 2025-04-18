@@ -8,7 +8,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 export const getUserProfileById = asyncHandler(async (req, res) => {
     console.log("coming inside getUserProfileById");
     const { id } = req.params;
-    if (isValidObjectId(id)) {
+    if (!isValidObjectId(id)) {
         throw new ApiError(400, "Invalid user id");
     }
     const user = await User.findById(id).populate("posts").populate("followers").populate("following").populate("bookmarks");
