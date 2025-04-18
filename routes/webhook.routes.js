@@ -9,7 +9,7 @@ const router = express.Router();
 // prefix = "/api/v1/webhook"
 router.post(
     "/clerk",
-    express.raw({ type: "*/*" }),
+    express.raw({ type: "application/json" }),
     asyncHandler(async (req, res) => {
         console.log("coming inside webhook.routes.js");
         const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;

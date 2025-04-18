@@ -8,7 +8,6 @@ const app = express();
 
 // adding middleares to our applications
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
-app.use(express.json());
 express.urlencoded({ extended: true });
 app.use(cookieParser());
 app.use(clerkMiddleware());
@@ -23,12 +22,13 @@ import webhookRouter from "./routes/webhook.routes.js";
 // import devRouter from "./routes/dev.routes.js";
 
 // using routes
+app.use("/api/v1/webhook", webhookRouter);
+app.use(express.json());
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/message", messageRouter);
 app.use("/api/v1/comment", commentRouter);
-app.use("/api/v1/webhook", webhookRouter);
 // app.use("/api/v1/dev", devRouter);
 
 export default app;
