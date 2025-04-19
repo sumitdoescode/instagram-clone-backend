@@ -24,7 +24,6 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     console.log("coming inside editOwnProfile");
     const clerkId = req.auth.userId;
     const { bio, gender } = req.body || {};
-    console.log(req.file);
     const profileImage = req.file;
 
     if (!bio && !gender && !profileImage) {
