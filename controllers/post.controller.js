@@ -166,7 +166,7 @@ export const getPost = asyncHandler(async (req, res) => {
 export const createPost = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId;
 
-    const { caption } = req.body;
+    const { caption } = req.body || {};
     const image = req.file;
 
     if (!caption?.trim()) {
