@@ -14,6 +14,6 @@ router.delete("/:postId", requireAuth(), deletePost); // delete post
 router.get("/user/:userId", requireAuth(), getUserPosts); // get user posts
 
 router.post("/toggleLike/:postId", requireAuth(), toggleLikePost); // like or unlike post
-router.post("/bookmark/:postId", requireAuth(), toggleBookmarkPost); // bookmark or unbookmark post
+router.post("/toggleBookmark/:postId", requireAuth(), toggleBookmarkPost); // bookmark or unbookmark post
 
 export default router;
