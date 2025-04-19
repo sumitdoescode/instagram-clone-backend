@@ -355,7 +355,7 @@ export const getUserPosts = asyncHandler(async (req, res) => {
                 as: "author",
             },
         },
-        { $unwind: "author" },
+        { $unwind: "$author" },
         {
             $addFields: {
                 likesCount: { $size: "$likes" },
