@@ -5,6 +5,7 @@ import ApiError from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
+import {} from "mongodb";
 
 export const getAllPosts = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId; // Get logged-in user's clerkId
@@ -385,7 +386,7 @@ export const getUserPosts = asyncHandler(async (req, res) => {
 
     return res.status(200).json({
         success: true,
-        message: posts.length > 0 ? "Posts fetched successfully" : "User has no posts yet",
+        message: posts.length > 0 ? "User Posts fetched successfully" : "User has no posts yet",
         posts,
     });
 });
