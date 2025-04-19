@@ -23,7 +23,7 @@ export const getUserProfileById = asyncHandler(async (req, res) => {
 export const editOwnProfile = asyncHandler(async (req, res) => {
     console.log("coming inside editOwnProfile");
     const clerkId = req.auth.userId;
-    const { bio, gender } = req.body;
+    const { bio, gender } = req?.body;
     const profileImage = req.file;
 
     if (!bio && !gender && !profileImage) {
