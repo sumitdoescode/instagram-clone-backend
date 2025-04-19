@@ -5,7 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
 
-export const getMessage = asyncHandler(async (req, res) => {
+export const getMessages = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId;
     const { userId } = req.params;
 
