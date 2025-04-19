@@ -322,6 +322,7 @@ export const deletePost = asyncHandler(async (req, res) => {
 });
 
 export const getUserPosts = asyncHandler(async (req, res) => {
+    console.log("coming inside getUserPosts controller");
     const clerkId = req.auth.userId;
 
     // Step 1: Get MongoDB user ID from clerkId
