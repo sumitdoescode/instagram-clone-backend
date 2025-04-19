@@ -7,6 +7,14 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import mongoose, { isValidObjectId } from "mongoose";
 
 export const getAllPosts = asyncHandler(async (req, res) => {
+    const clerkId = req.auth.userId; // Get logged-in user's clerkId
+
+    // Step 1: Get MongoDB user ID from clerkId
+    const loggedInUser = await User.findOne({ clerkId });
+    if (!loggedInUser) {
+        throw new ApiError(404, "Logged-in user not found");
+    }
+
     const posts = await Post.aggregate([
         // Join with the User collection to get author data
         {
@@ -21,6 +29,14 @@ export const getAllPosts = asyncHandler(async (req, res) => {
         {
             $unwind: "$author",
         },
+        // Add a computed field to check if loggedInUser has liked the post
+        {
+            $addFields: {
+                likedByLoggedInUser: {
+                    $in: [loggedInUser._id, "$likes"],
+                },
+            },
+        },
         // Project fields + computed likeCount and commentCount
         {
             $project: {
@@ -29,6 +45,7 @@ export const getAllPosts = asyncHandler(async (req, res) => {
                 createdAt: 1,
                 likeCount: { $size: "$likes" },
                 commentCount: { $size: "$comments" },
+                likedByLoggedInUser: 1,
                 author: {
                     _id: "$author._id",
                     username: "$author.username",
