@@ -10,6 +10,6 @@ const router = express.Router();
 router.get("/:id", getUserProfileById); // get user profile by id
 router.patch("/", requireAuth(), upload.single("profileImage"), editOwnProfile); // edit user profile(self)
 router.get("/usersToFollow", requireAuth(), usersToFollow); // get users to follow
-router.post("/followOrUnfollow/:id", requireAuth(), followOrUnfollowUser); // follow or unfollow user
+router.get("/followOrUnfollow/:id", requireAuth(), followOrUnfollowUser); // follow or unfollow user
 
 export default router;
