@@ -48,7 +48,7 @@ export const createComment = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
-    const { text } = req.body;
+    const { text } = req.body || {};
     if (!text || !text.trim()) {
         throw new ApiError(400, "Comment text is required");
     }
