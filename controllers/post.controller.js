@@ -32,7 +32,7 @@ export const getAllPosts = asyncHandler(async (req, res) => {
         // Add a computed field to check if loggedInUser has liked the post
         {
             $addFields: {
-                likedByLoggedInUser: {
+                isLiked: {
                     $in: [loggedInUser._id, "$likes"],
                 },
             },
@@ -45,7 +45,7 @@ export const getAllPosts = asyncHandler(async (req, res) => {
                 createdAt: 1,
                 likeCount: { $size: "$likes" },
                 commentCount: { $size: "$comments" },
-                likedByLoggedInUser: 1,
+                isLiked: 1,
                 author: {
                     _id: "$author._id",
                     username: "$author.username",
@@ -97,7 +97,7 @@ export const getPost = asyncHandler(async (req, res) => {
         {
             $addFields: {
                 likesCount: { $size: "$likes" },
-                isLikedByLoggedInUser: {
+                isLiked: {
                     $in: [user._id, "$likes"],
                 },
             },
@@ -157,14 +157,14 @@ export const getPost = asyncHandler(async (req, res) => {
                 image: 1,
                 createdAt: 1,
                 likesCount: 1,
-                isLikedByLoggedInUser: 1,
+                isLiked: 1,
                 commentCount: { $size: "$comments" },
+                comments: 1,
                 author: {
                     _id: 1,
                     username: 1,
                     profileImage: 1,
                 },
-                comments: 1,
             },
         },
     ]);
