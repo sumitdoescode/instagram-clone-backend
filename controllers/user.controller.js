@@ -5,6 +5,12 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
 
+export const getOwnProfile = asyncHandler(async (req, res) => {
+    const clerkId = req.auth.userId;
+    console.log(req.auth);
+    res.status(200).json({ success: true, message: "Own Profile Fetched successfully", clerkId });
+});
+
 export const getUserProfileById = asyncHandler(async (req, res) => {
     console.log("coming inside getUserProfileById");
     const clerkId = req.auth.userId;
