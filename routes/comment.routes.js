@@ -4,7 +4,7 @@ import { requireAuth } from "@clerk/express";
 
 const router = express.Router();
 
-router.get("/:postId", requireAuth(), getPostComments); // Get all comments for a post
+router.get("/:postId", getPostComments); // Get all comments for a post
 router.post("/:postId", requireAuth(), createComment); // Add a new comment
 router.delete("/:commentId", requireAuth(), deleteComment); // Delete a comment
 
