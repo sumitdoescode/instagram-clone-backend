@@ -232,7 +232,7 @@ export const updatePost = asyncHandler(async (req, res) => {
         throw new ApiError(403, "Unauthorized");
     }
 
-    const { caption } = req.body;
+    const { caption } = req.body || {};
     const image = req.file;
 
     // Either caption or image is required

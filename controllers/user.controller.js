@@ -23,7 +23,7 @@ export const getUserProfileById = asyncHandler(async (req, res) => {
 export const editOwnProfile = asyncHandler(async (req, res) => {
     console.log("coming inside editOwnProfile");
     const clerkId = req.auth.userId;
-    const { bio, gender } = req?.body;
+    const { bio, gender } = req.body || {};
     const profileImage = req.file;
 
     if (!bio && !gender && !profileImage) {
@@ -35,17 +35,17 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
     if (bio) {
-        user.bio = bio;
+        user.bio = bio.trim();
     }
     if (gender) {
         user.gender = gender;
     }
     if (profileImage) {
-        const res = await uploadOnCloudinary(profileImage.path);
-        if (!res) {
+        const uploadResponse = await uploadOnCloudinary(profileImage.path);
+        if (!uploadResponse) {
             throw new ApiError(500, "Something went wrong while uploading image");
         }
-        user.profileImage = res.secure_url;
+        user.profileImage = uploadResponse.secure_url;
     }
     await user.save();
     res.status(200).json({ success: true, message: "Profile updated successfully", user });
