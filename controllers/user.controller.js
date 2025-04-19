@@ -7,6 +7,8 @@ import mongoose, { isValidObjectId } from "mongoose";
 
 export const getUserProfileById = asyncHandler(async (req, res) => {
     console.log("coming inside getUserProfileById");
+    const clerkId = req.auth.userId;
+    console.log(clerkId);
     const { id } = req.params;
     if (!isValidObjectId(id)) {
         throw new ApiError(400, "Invalid user id");
