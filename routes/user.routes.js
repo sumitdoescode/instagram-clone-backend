@@ -11,7 +11,7 @@ const customRequireAuth = (req, res, next) => {
     console.log("✅ requireAuth hit!");
     return requireAuth()(req, res, next);
 };
-router.get("/:id", customRequireAuth(), getUserProfileById); // get user profile by id
+router.get("/:id", customRequireAuth, getUserProfileById); // get user profile by id
 router.patch("/", requireAuth(), upload.single("profileImage"), editOwnProfile); // edit user profile(self)
 router.get("/usersToFollow", requireAuth(), usersToFollow); // get users to follow
 router.post("/followOrUnfollow/:id", requireAuth(), followOrUnfollowUser); // follow or unfollow user
