@@ -93,7 +93,7 @@ export const getPost = asyncHandler(async (req, res) => {
         },
         { $unwind: "$author" },
 
-        // Add likesCount, commentCount, isLikedByLoggedInUser
+        // Add likesCount, commentCount, isLiked
         {
             $addFields: {
                 likesCount: { $size: "$likes" },
@@ -253,7 +253,7 @@ export const updatePost = asyncHandler(async (req, res) => {
     const image = req.file;
 
     // Either caption or image is required
-    if (!caption.trim() && !image) {
+    if (!caption?.trim() && !image) {
         throw new ApiError(400, "Please provide either a caption or an image");
     }
 
