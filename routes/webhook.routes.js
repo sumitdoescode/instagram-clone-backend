@@ -37,8 +37,8 @@ router.post(
                 await User.create({
                     clerkId,
                     username: username || email.split("@")[0],
-                    email,
-                    profilePicture: image_url || "",
+                    email: email,
+                    profileImage: image_url || "",
                     bio: public_metadata?.bio || "",
                     gender: public_metadata?.gender || undefined,
                 });
@@ -50,8 +50,8 @@ router.post(
                     { clerkId },
                     {
                         username: username || email.split("@")[0],
-                        email,
-                        profilePicture: image_url || "",
+                        email: email,
+                        profileImage: image_url || "",
                         bio: public_metadata?.bio || "",
                         gender: public_metadata?.gender || undefined,
                     },
