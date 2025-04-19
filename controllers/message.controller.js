@@ -58,7 +58,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Receiver not found");
     }
 
-    const { message } = req.body;
+    const { message } = req.body || {};
     if (!message || !message.trim()) {
         throw new ApiError(400, "Message text is required");
     }
