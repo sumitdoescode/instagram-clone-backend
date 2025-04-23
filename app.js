@@ -3,6 +3,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { clerkMiddleware } from "@clerk/express";
+import { config } from "dotenv";
+config();
 
 const app = express();
 
