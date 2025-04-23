@@ -80,6 +80,7 @@ export const usersToFollow = asyncHandler(async (req, res) => {
                 username: 1,
                 profileImage: 1,
                 bio: 1,
+                gender: 1,
             },
         },
     ]);
