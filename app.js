@@ -6,7 +6,7 @@ import { clerkMiddleware } from "@clerk/express";
 
 const app = express();
 
-// adding middleares to our applications
+// adding middlewares to our applications
 app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
 express.urlencoded({ extended: true });
 app.use(cookieParser());
