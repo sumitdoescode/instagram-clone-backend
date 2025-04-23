@@ -455,7 +455,7 @@ export const toggleLikePost = asyncHandler(async (req, res) => {
     return res.status(200).json({
         success: true,
         message: isLike ? "Post liked" : "Post unliked",
-        post,
+        isLiked: isLike,
     });
 });
 
@@ -488,7 +488,7 @@ export const toggleBookmarkPost = asyncHandler(async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Post removed from bookmark",
-            post,
+            isBookmarked: false,
         });
     } else {
         // If not bookmarked, add to bookmarks
@@ -497,7 +497,7 @@ export const toggleBookmarkPost = asyncHandler(async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Post bookmarked",
-            post,
+            isBookmarked: true,
         });
     }
 });
