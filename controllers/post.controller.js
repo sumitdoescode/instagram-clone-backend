@@ -36,6 +36,12 @@ export const getAllPosts = asyncHandler(async (req, res) => {
                 isLiked: {
                     $in: [loggedInUser._id, "$likes"],
                 },
+                isBookmarked: {
+                    $in: ["$_id", loggedInUser.bookmarks],
+                },
+                isAuthor: {
+                    $eq: ["$author._id", loggedInUser._id], // ✅ Add this
+                },
             },
         },
         // Project fields + computed likeCount and commentCount
@@ -47,6 +53,8 @@ export const getAllPosts = asyncHandler(async (req, res) => {
                 likeCount: { $size: "$likes" },
                 commentCount: { $size: "$comments" },
                 isLiked: 1,
+                isBookmarked: 1,
+                isAuthor: 1,
                 author: {
                     _id: "$author._id",
                     username: "$author.username",
@@ -101,6 +109,12 @@ export const getPost = asyncHandler(async (req, res) => {
                 isLiked: {
                     $in: [user._id, "$likes"],
                 },
+                isBookmarked: {
+                    $in: ["$_id", user.bookmarks],
+                },
+                isAuthor: {
+                    $eq: ["$author._id", user._id], // ✅ Add this
+                },
             },
         },
 
@@ -154,11 +168,13 @@ export const getPost = asyncHandler(async (req, res) => {
         {
             $project: {
                 _id: 1,
+                createdAt: 1,
                 caption: 1,
                 image: 1,
-                createdAt: 1,
                 likesCount: 1,
                 isLiked: 1,
+                isBookmarked: 1,
+                isAuthor: 1,
                 commentCount: { $size: "$comments" },
                 comments: 1,
                 author: {
@@ -363,6 +379,8 @@ export const getUserPosts = asyncHandler(async (req, res) => {
                 likesCount: { $size: "$likes" },
                 commentsCount: { $size: "$comments" },
                 isLiked: { $in: [loggedInUser._id, "$likes"] },
+                isBookmarked: { $in: ["$_id", loggedInUser.bookmarks] },
+                isAuthor: { $eq: ["$author._id", loggedInUser._id] }, // ✅ Add this
             },
         },
         {
@@ -373,6 +391,8 @@ export const getUserPosts = asyncHandler(async (req, res) => {
                 createdAt: 1,
                 likesCount: 1,
                 commentsCount: 1,
+                isBookmarked: 1,
+                isAuthor: 1,
                 isLiked: 1,
                 author: {
                     username: 1,
