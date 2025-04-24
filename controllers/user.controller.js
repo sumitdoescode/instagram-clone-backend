@@ -88,7 +88,7 @@ export const recommendedUsers = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         message: "Recommended Users fetched successfully",
-        recommendedUsers,
+        users: recommendedUsers,
     });
 });
 
