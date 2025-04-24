@@ -11,8 +11,7 @@ router.patch("/", requireAuth(), upload.single("profileImage"), editOwnProfile);
 router.get("/recommended", requireAuth(), recommendedUsers); // get users to follow
 router.get("/followOrUnfollow/:id", requireAuth(), followOrUnfollowUser); // follow or unfollow user
 
-// This only matches 24-char hex Mongo ObjectIds
-// router.get("/:id([0-9a-fA-F]{24})", requireAuth(), getUserProfileById);
-router.get("/:id([0-9a-fA-F]{24})", requireAuth(), getUserProfileById); // ✅ Correct syntax
+// get user profile by id
+router.get("/:id", requireAuth(), getUserProfileById);
 
 export default router;
