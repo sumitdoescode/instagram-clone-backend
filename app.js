@@ -30,7 +30,7 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/message", messageRouter);
 app.use("/api/v1/comment", commentRouter);
-app.all("*", (req, res) => {
+app.use((req, res) => {
     res.status(404).json({
         success: false,
         message: `Route ${req.originalUrl} not found`,
