@@ -12,6 +12,7 @@ router.get("/recommended", requireAuth(), recommendedUsers); // get users to fol
 router.get("/followOrUnfollow/:id", requireAuth(), followOrUnfollowUser); // follow or unfollow user
 
 // This only matches 24-char hex Mongo ObjectIds
-router.get("/:id([0-9a-fA-F]{24})", requireAuth(), getUserProfileById);
+// router.get("/:id([0-9a-fA-F]{24})", requireAuth(), getUserProfileById);
+router.get("/:id([0-9a-fA-F]{24})", requireAuth(), getUserProfileById); // ✅ Correct syntax
 
 export default router;
