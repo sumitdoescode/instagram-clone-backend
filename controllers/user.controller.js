@@ -51,8 +51,8 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: "Profile updated successfully", user });
 });
 
-export const usersToFollow = asyncHandler(async (req, res) => {
-    console.log("coming inside usersToFollow");
+export const suggestedUsers = asyncHandler(async (req, res) => {
+    console.log("coming inside suggestedUsers");
     const clerkId = req.auth.userId;
 
     // 1. Find the current user with their following list
