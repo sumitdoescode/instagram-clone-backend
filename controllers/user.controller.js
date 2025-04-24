@@ -51,8 +51,8 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: "Profile updated successfully", user });
 });
 
-export const suggestedUsers = asyncHandler(async (req, res) => {
-    console.log("coming inside suggestedUsers");
+export const recommendedUsers = asyncHandler(async (req, res) => {
+    console.log("coming inside recommendedUsers");
     const clerkId = req.auth.userId;
 
     // 1. Find the current user with their following list
@@ -67,7 +67,7 @@ export const suggestedUsers = asyncHandler(async (req, res) => {
     const excludedIds = [...user.following, user._id];
 
     // 3. Get 5 random users not in that exclusion list
-    const suggestedUsers = await User.aggregate([
+    const recommendedUsers = await User.aggregate([
         {
             $match: {
                 _id: { $nin: excludedIds },
@@ -87,8 +87,8 @@ export const suggestedUsers = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         success: true,
-        message: "Suggested users fetched successfully",
-        suggestedUsers,
+        message: "Recommended Users fetched successfully",
+        recommendedUsers,
     });
 });
 
