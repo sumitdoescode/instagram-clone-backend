@@ -5,21 +5,6 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
 
-export const getUserProfileById = asyncHandler(async (req, res) => {
-    console.log("coming inside getUserProfileById");
-    const clerkId = req.auth.userId;
-    console.log(clerkId);
-    const { id } = req.params;
-    if (!isValidObjectId(id)) {
-        throw new ApiError(400, "Invalid user id");
-    }
-    const user = await User.findById(id).populate("posts").populate("followers").populate("following").populate("bookmarks");
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
-    res.status(200).json({ success: true, message: "Profile Fetched successfully", user });
-});
-
 export const editOwnProfile = asyncHandler(async (req, res) => {
     console.log("coming inside editOwnProfile");
     const clerkId = req.auth.userId;
@@ -146,4 +131,19 @@ export const followOrUnfollowUser = asyncHandler(async (req, res) => {
 
         res.status(200).json({ success: true, message: "User followed successfully" });
     }
+});
+
+export const getUserProfileById = asyncHandler(async (req, res) => {
+    console.log("coming inside getUserProfileById");
+    const clerkId = req.auth.userId;
+    console.log(clerkId);
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+        throw new ApiError(400, "Invalid user id");
+    }
+    const user = await User.findById(id).populate("posts").populate("followers").populate("following").populate("bookmarks");
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    res.status(200).json({ success: true, message: "Profile Fetched successfully", user });
 });
