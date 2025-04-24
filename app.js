@@ -21,7 +21,6 @@ import postRouter from "./routes/post.routes.js";
 import messageRouter from "./routes/message.routes.js";
 import commentRouter from "./routes/comment.routes.js";
 import webhookRouter from "./routes/webhook.routes.js";
-// import devRouter from "./routes/dev.routes.js";
 
 // using routes
 app.use("/api/v1/webhook", webhookRouter);
@@ -31,6 +30,11 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/message", messageRouter);
 app.use("/api/v1/comment", commentRouter);
-// app.use("/api/v1/dev", devRouter);
+app.all("*", (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Route ${req.originalUrl} not found`,
+    });
+});
 
 export default app;
