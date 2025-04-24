@@ -135,9 +135,6 @@ export const followOrUnfollowUser = asyncHandler(async (req, res) => {
 
 export const getUserProfileById = asyncHandler(async (req, res) => {
     console.log("coming inside getUserProfileById");
-    console.log("why hei s still here bro why");
-    console.log("why hei s still here bro why");
-    console.log("why hei s still here bro why");
     const clerkId = req.auth.userId;
     console.log(clerkId);
     const { id } = req.params;
