@@ -118,7 +118,7 @@ export const followOrUnfollowUser = asyncHandler(async (req, res) => {
             $pull: { followers: currentUser._id },
         });
 
-        res.status(200).json({ success: true, message: "User unfollowed successfully" });
+        res.status(200).json({ success: true, message: "User unfollowed successfully", isFollow: false });
     } else {
         // ➕ Follow
         await User.findByIdAndUpdate(currentUser._id, {
@@ -129,7 +129,7 @@ export const followOrUnfollowUser = asyncHandler(async (req, res) => {
             $addToSet: { followers: currentUser._id },
         });
 
-        res.status(200).json({ success: true, message: "User followed successfully" });
+        res.status(200).json({ success: true, message: "User followed successfully", isFollow: true });
     }
 });
 
