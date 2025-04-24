@@ -9,7 +9,7 @@ const router = express.Router();
 // prefix is /api/v1/user
 router.patch("/", requireAuth(), upload.single("profileImage"), editOwnProfile); // edit user profile(self)
 router.get("/recommended", requireAuth(), recommendedUsers); // get users to follow
-router.get("/:id", requireAuth(), getUserProfileById); // get user profile by id
 router.get("/followOrUnfollow/:id", requireAuth(), followOrUnfollowUser); // follow or unfollow user
+router.get("/:id", requireAuth(), getUserProfileById); // get user profile by id
 
 export default router;
