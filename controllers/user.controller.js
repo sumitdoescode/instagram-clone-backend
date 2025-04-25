@@ -136,14 +136,148 @@ export const followOrUnfollowUser = asyncHandler(async (req, res) => {
 export const getUserProfileById = asyncHandler(async (req, res) => {
     console.log("coming inside getUserProfileById");
     const clerkId = req.auth.userId;
-    console.log(clerkId);
     const { id } = req.params;
     if (!isValidObjectId(id)) {
         throw new ApiError(400, "Invalid user id");
     }
-    const user = await User.findById(id).populate("posts").populate("followers").populate("following").populate("bookmarks");
+    const loggedInUser = await User.findOne({ clerkId }).select("_id");
+    if (!loggedInUser) {
+        throw new ApiError(404, "Logged-in user not found");
+    }
+
+    const user = await User.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(id) } },
+        {
+            $addFields: {
+                followersCount: { $size: "$followers" },
+                followingCount: { $size: "$following" },
+                postsCount: { $size: "$posts" },
+                isAuthor: { $eq: ["$_id", loggedInUser._id] },
+                isFollowing: { $in: [loggedInUser._id, "$followers"] }, // no lookup needed, array of IDs hai
+            },
+        },
+        {
+            $project: {
+                username: 1,
+                email: 1,
+                profileImage: 1,
+                bio: 1,
+                gender: 1,
+                followersCount: 1,
+                followingCount: 1,
+                postsCount: 1,
+                isAuthor: 1,
+                isFollowing: 1,
+            },
+        },
+    ]);
     if (!user) {
         throw new ApiError(404, "User not found");
     }
+
     res.status(200).json({ success: true, message: "Profile Fetched successfully", user });
+});
+
+export const getUserFollowers = asyncHandler(async (req, res) => {
+    const clerkId = req.auth.userId;
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+        throw new ApiError(400, "Invalid user id");
+    }
+
+    const loggedInUser = await User.findOne({ clerkId }).select("_id");
+    if (!loggedInUser) {
+        throw new ApiError(404, "Logged-in user not found");
+    }
+
+    const followers = await User.aggregate([
+        {
+            // Match the target user whose followers we want
+            $match: { _id: new mongoose.Types.ObjectId(id) },
+        },
+        {
+            // Lookup their followers (returns array of User docs)
+            $lookup: {
+                from: "users",
+                localField: "followers",
+                foreignField: "_id",
+                as: "followerUsers",
+            },
+        },
+        {
+            // Unwind the followers array to process each follower separately
+            $unwind: "$followerUsers",
+        },
+        {
+            // Project the required fields + isFollowing + followersCount
+            $project: {
+                _id: "$followerUsers._id",
+                username: "$followerUsers.username",
+                profileImage: "$followerUsers.profileImage",
+                followersCount: { $size: "$followerUsers.followers" },
+                isFollowing: {
+                    $in: [loggedInUser._id, "$followerUsers.followers"],
+                },
+            },
+        },
+    ]);
+
+    res.status(200).json({
+        success: true,
+        message: "Followers fetched successfully (via aggregation)",
+        followers,
+    });
+});
+
+export const getUserFollowing = asyncHandler(async (req, res) => {
+    const clerkId = req.auth.userId;
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+        throw new ApiError(400, "Invalid user id");
+    }
+
+    const loggedInUser = await User.findOne({ clerkId }).select("_id");
+    if (!loggedInUser) {
+        throw new ApiError(404, "Logged-in user not found");
+    }
+
+    const following = await User.aggregate([
+        {
+            // Match the target user
+            $match: { _id: new mongoose.Types.ObjectId(id) },
+        },
+        {
+            // Lookup the users they are following
+            $lookup: {
+                from: "users",
+                localField: "following",
+                foreignField: "_id",
+                as: "followingUsers",
+            },
+        },
+        {
+            // Unwind each following user
+            $unwind: "$followingUsers",
+        },
+        {
+            // Project required fields
+            $project: {
+                _id: "$followingUsers._id",
+                username: "$followingUsers.username",
+                profileImage: "$followingUsers.profileImage",
+                followersCount: { $size: "$followingUsers.followers" },
+                isFollowing: {
+                    $in: [loggedInUser._id, "$followingUsers.followers"],
+                },
+            },
+        },
+    ]);
+
+    res.status(200).json({
+        success: true,
+        message: "Following list fetched successfully",
+        following,
+    });
 });

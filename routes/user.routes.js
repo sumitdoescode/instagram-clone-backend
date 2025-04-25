@@ -1,5 +1,5 @@
 import express from "express";
-import { editOwnProfile, recommendedUsers, followOrUnfollowUser, getUserProfileById } from "../controllers/user.controller.js";
+import { editOwnProfile, recommendedUsers, followOrUnfollowUser, getUserProfileById, getUserFollowers, getUserFollowing } from "../controllers/user.controller.js";
 import { requireAuth } from "@clerk/express";
 import upload from "../middlewares/multer.middleware.js";
 
@@ -11,7 +11,10 @@ router.patch("/", requireAuth(), upload.single("profileImage"), editOwnProfile);
 router.get("/recommended", requireAuth(), recommendedUsers); // get users to follow
 router.get("/followOrUnfollow/:id", requireAuth(), followOrUnfollowUser); // follow or unfollow user
 
-// get user profile by id
+// Place these BEFORE `/:id`
+router.get("/:id/followers", requireAuth(), getUserFollowers);
+router.get("/:id/following", requireAuth(), getUserFollowing);
+
 router.get("/:id", requireAuth(), getUserProfileById);
 
 export default router;

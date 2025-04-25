@@ -28,6 +28,7 @@ const userSchema = new Schema(
         gender: {
             type: String,
             enum: ["male", "female"],
+            default: "male",
         },
         followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
         following: [{ type: Schema.Types.ObjectId, ref: "User" }],
