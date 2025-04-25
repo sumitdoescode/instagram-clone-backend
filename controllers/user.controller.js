@@ -171,11 +171,11 @@ export const getUserProfileById = asyncHandler(async (req, res) => {
             },
         },
     ]);
-    if (!user) {
+    if (!user.length) {
         throw new ApiError(404, "User not found");
     }
 
-    res.status(200).json({ success: true, message: "Profile Fetched successfully", user });
+    res.status(200).json({ success: true, message: "Profile Fetched successfully", user: user[0] });
 });
 
 export const getUserFollowers = asyncHandler(async (req, res) => {
