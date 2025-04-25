@@ -50,7 +50,7 @@ export const getAllPosts = asyncHandler(async (req, res) => {
                 caption: 1,
                 image: 1,
                 createdAt: 1,
-                likeCount: { $size: "$likes" },
+                likesCount: { $size: "$likes" },
                 commentCount: { $size: "$comments" },
                 isLiked: 1,
                 isBookmarked: 1,
