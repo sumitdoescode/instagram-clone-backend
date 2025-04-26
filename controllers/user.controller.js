@@ -63,6 +63,10 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
     if (username) {
+        // username should be greater than 3 characters and less than 24 characters
+        if (username.length < 3 || username.length > 24) {
+            throw new ApiError(400, "Username should be between 3 and 24 characters");
+        }
         // check if username is unique
         const existingUser = await User.findOne({ username });
         if (existingUser) {
