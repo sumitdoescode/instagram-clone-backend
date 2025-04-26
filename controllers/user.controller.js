@@ -83,7 +83,7 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     if (profileImage) {
         const uploadResponse = await uploadOnCloudinary(profileImage.path);
         if (!uploadResponse) {
-            throw new ApiError(500, "Something went wrong while uploading image");
+            throw new ApiError(500, "Something went wrong while uploading profile image");
         }
         user.profileImage = uploadResponse.secure_url;
     }
