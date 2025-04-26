@@ -9,6 +9,9 @@ const userSchema = new Schema(
         },
         username: {
             type: String,
+            minlength: [3, "Username length should not be less than 3 characters"],
+            maxlength: [16, "Username length should not exceed 16 characters"],
+            match: /^[0-9A-Za-z]{3,16}$/,
             required: true,
         },
         email: {
@@ -23,6 +26,8 @@ const userSchema = new Schema(
         },
         bio: {
             type: String,
+            minlength: [10, "Bio length should not be less than 10 characters"],
+            maxlength: [300, "Bio length should not exceed 300 characters"],
             default: "",
         },
         gender: {
