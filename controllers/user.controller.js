@@ -66,6 +66,9 @@ export const recommendedUsers = asyncHandler(async (req, res) => {
                 profileImage: 1,
                 bio: 1,
                 gender: 1,
+                followersCount: {
+                    $size: "$followers",
+                },
             },
         },
     ]);
