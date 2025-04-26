@@ -222,6 +222,7 @@ export const getUserFollowers = asyncHandler(async (req, res) => {
                 isFollowing: {
                     $in: [loggedInUser._id, "$followerUsers.followers"],
                 },
+                isOwnProfile: { $eq: ["$followerUsers._id", loggedInUser._id] },
             },
         },
     ]);
@@ -274,6 +275,7 @@ export const getUserFollowing = asyncHandler(async (req, res) => {
                 isFollowing: {
                     $in: [loggedInUser._id, "$followingUsers.followers"],
                 },
+                isOwnProfile: { $eq: ["$followingUsers._id", loggedInUser._id] },
             },
         },
     ]);
