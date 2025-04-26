@@ -51,16 +51,24 @@ export const getOwnProfile = asyncHandler(async (req, res) => {
 export const editOwnProfile = asyncHandler(async (req, res) => {
     console.log("coming inside editOwnProfile");
     const clerkId = req.auth.userId;
-    const { bio, gender } = req.body || {};
+    const { username, bio, gender } = req.body || {};
     const profileImage = req.file;
 
-    if (!bio && !gender && !profileImage) {
+    if (!username && !bio && !gender && !profileImage) {
         throw new ApiError(400, "Please provide at least one field to update");
     }
 
     const user = await User.findOne({ clerkId });
     if (!user) {
         throw new ApiError(404, "User not found");
+    }
+    if (username) {
+        // check if username is unique
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            throw new ApiError(400, "Username is already taken");
+        }
+        user.username = username.trim();
     }
     if (bio) {
         user.bio = bio.trim();
