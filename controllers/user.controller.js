@@ -13,7 +13,36 @@ export const getOwnProfile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Logged-in user not found");
     }
 
-    const user = await User.findById(loggedInUser._id).select("_id profileImage username email");
+    // const user = await User.findById(loggedInUser._id).select("");
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(loggedInUser._id),
+            },
+        },
+        {
+            $addFields: {
+                postsCount: { $size: "$posts" },
+                followersCount: { $size: "$followers" },
+                followingCount: { $size: "$following" },
+                bookmarksCount: { $size: "$bookmarks" },
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                username: 1,
+                email: 1,
+                profileImage: 1,
+                bio: 1,
+                gender: 1,
+                postsCount: 1,
+                followersCount: 1,
+                followingCount: 1,
+                bookmarksCount: 1,
+            },
+        },
+    ]);
     if (!user) {
         throw new ApiError(404, "User not found");
     }
