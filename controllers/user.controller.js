@@ -45,7 +45,7 @@ export const getOwnProfile = asyncHandler(async (req, res) => {
     if (!user) {
         throw new ApiError(404, "User not found");
     }
-    res.status(200).json({ success: true, message: "Own Profile Fetched successfully", user });
+    res.status(200).json({ success: true, message: "Own Profile Fetched successfully", user: user[0] });
 });
 
 export const editOwnProfile = asyncHandler(async (req, res) => {
