@@ -6,7 +6,6 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import mongoose, { isValidObjectId } from "mongoose";
 
 export const getOwnProfile = asyncHandler(async (req, res) => {
-    console.log("coming inside getOwnProfile");
     const clerkId = req.auth.userId;
     const loggedInUser = await User.findOne({ clerkId }).select("_id");
     if (!loggedInUser) {
