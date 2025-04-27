@@ -19,14 +19,16 @@ router.post(
         const wh = new Webhook(WEBHOOK_SECRET);
 
         let event;
+        console.log("1. About to verify signature");
 
         try {
             event = wh.verify(payload, headers); // ✅ This is the proper way
+            console.log("2. Signature verified successfully");
         } catch (err) {
             console.error("❌ Invalid Clerk webhook signature:", err.message);
             return res.status(400).send("Invalid signature");
         }
-
+        console.log("3. After signature verification, EventType:", event.type);
         const { type: eventType, data } = event;
         const { id: clerkId, username, email_addresses, image_url, public_metadata } = data;
 
@@ -34,7 +36,7 @@ router.post(
 
         switch (eventType) {
             case "user.created":
-                console.log("user created webhook");
+                console.log("4. About to insert user into DB");
                 await User.create({
                     clerkId,
                     username: username,
@@ -43,6 +45,7 @@ router.post(
                     bio: public_metadata?.bio || "",
                     gender: public_metadata?.gender || undefined,
                 });
+                console.log("5. Successfully inserted user");
                 break;
 
             case "user.updated":
