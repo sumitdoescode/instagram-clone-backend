@@ -30,12 +30,14 @@ export const getOwnProfile = asyncHandler(async (req, res) => {
         {
             $project: {
                 _id: 1,
+                clerkId: 1,
                 username: 1,
                 email: 1,
                 profileImage: 1,
                 bio: 1,
                 gender: 1,
                 postsCount: 1,
+                createdAt: 1,
                 followersCount: 1,
                 followingCount: 1,
                 bookmarksCount: 1,
