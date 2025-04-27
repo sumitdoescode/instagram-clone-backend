@@ -4,7 +4,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
-import { Clerk } from "@clerk/backend";
+import { clerkClient } from "@clerk/express";
 
 export const getOwnProfile = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId;
@@ -165,8 +165,8 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: "Profile updated successfully", user });
 });
 
-const clerkClient = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 export const deleteClerkProfile = asyncHandler(async (req, res) => {
+    console.log("coming isnide delteeClerkProfile");
     const clerkId = req.auth.userId;
     const loggedInUser = await User.findOne({ clerkId }).select("_id");
     if (!loggedInUser) {
