@@ -127,6 +127,7 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     const { username, bio, gender } = req.body || {};
     const profileImage = req.file;
 
+    const toUpdate = {};
     if (!username && !bio && !gender && !profileImage) {
         throw new ApiError(400, "Please provide at least one field to update");
     }
@@ -145,22 +146,27 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
         if (existingUser) {
             throw new ApiError(400, "Username is already taken");
         }
-        user.username = username.trim();
+        // user.username = username.trim();
+        toUpdate.username = username.trim();
     }
     if (bio) {
-        user.bio = bio.trim();
+        // user.bio = bio.trim();
+        toUpdate.publicMetadata.bio = bio.trim();
     }
     if (gender) {
-        user.gender = gender;
+        // user.gender = gender;
+        toUpdate.publicMetadata.gender = gender;
     }
     if (profileImage) {
         const uploadResponse = await uploadOnCloudinary(profileImage.path);
         if (!uploadResponse) {
             throw new ApiError(500, "Something went wrong while uploading profile image");
         }
-        user.profileImage = uploadResponse.secure_url;
+        // user.profileImage = uploadResponse.secure_url;
+        toUpdate.imageUrl = uploadResponse.secure_url;
     }
-    await user.save();
+    // await user.save();
+    await clerkClient.users.updateUser(clerkId, toUpdate);
     res.status(200).json({ success: true, message: "Profile updated successfully", user });
 });
 
