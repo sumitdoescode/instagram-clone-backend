@@ -136,36 +136,33 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     if (!user) {
         throw new ApiError(404, "User not found");
     }
+
     if (username) {
-        // username should be greater than 3 characters and less than 24 characters
         if (username.length < 3 || username.length > 16) {
             throw new ApiError(400, "Username should be between 3 and 16 characters");
         }
-        // check if username is unique
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             throw new ApiError(400, "Username is already taken");
         }
-        // user.username = username.trim();
         toUpdate.username = username.trim();
     }
-    if (bio) {
-        // user.bio = bio.trim();
-        toUpdate.publicMetadata.bio = bio.trim();
+
+    if (bio || gender) {
+        toUpdate.publicMetadata = {};
+        if (bio) toUpdate.publicMetadata.bio = bio.trim();
+        if (gender) toUpdate.publicMetadata.gender = gender;
     }
-    if (gender) {
-        // user.gender = gender;
-        toUpdate.publicMetadata.gender = gender;
-    }
+
     if (profileImage) {
         const uploadResponse = await uploadOnCloudinary(profileImage.path);
         if (!uploadResponse) {
             throw new ApiError(500, "Something went wrong while uploading profile image");
         }
-        // user.profileImage = uploadResponse.secure_url;
         toUpdate.imageUrl = uploadResponse.secure_url;
     }
-    // await user.save();
+
+    // Now update directly in Clerk
     await clerkClient.users.updateUser(clerkId, toUpdate);
     res.status(200).json({ success: true, message: "Profile updated successfully", user });
 });
