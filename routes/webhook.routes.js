@@ -46,20 +46,20 @@ router.post(
                 console.log("5. Successfully inserted user");
                 break;
 
-            case "user.updated":
-                console.log("user updated webhook");
-                await User.findOneAndUpdate(
-                    { clerkId },
-                    {
-                        username: username,
-                        email: email,
-                        profileImage: public_metadata?.profileImage,
-                        bio: public_metadata?.bio || "",
-                        gender: public_metadata?.gender || "male",
-                    },
-                    { new: true }
-                );
-                break;
+            // case "user.updated":
+            //     console.log("user updated webhook");
+            //     await User.findOneAndUpdate(
+            //         { clerkId },
+            //         {
+            //             username: username,
+            //             email: email,
+            //             profileImage: public_metadata?.profileImage,
+            //             bio: public_metadata?.bio || "",
+            //             gender: public_metadata?.gender || "male",
+            //         },
+            //         { new: true }
+            //     );
+            //     break;
 
             case "user.deleted":
                 console.log("user deleting webhook");

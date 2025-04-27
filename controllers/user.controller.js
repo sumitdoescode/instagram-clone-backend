@@ -127,7 +127,6 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     const { username, bio, gender } = req.body || {};
     const profileImage = req.file;
 
-    const toUpdate = {};
     if (!username && !bio && !gender && !profileImage) {
         throw new ApiError(400, "Please provide at least one field to update");
     }
@@ -137,37 +136,46 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
+    // Prepare fields to update Clerk
+    const clerkUpdateData = {};
+
+    // Handle username
     if (username) {
         if (username.length < 3 || username.length > 16) {
             throw new ApiError(400, "Username should be between 3 and 16 characters");
         }
         const existingUser = await User.findOne({ username });
-        if (existingUser) {
+        if (existingUser && existingUser.clerkId !== clerkId) {
             throw new ApiError(400, "Username is already taken");
         }
-        toUpdate.username = username.trim();
+        clerkUpdateData.username = username.trim();
+        user.username = username.trim();
     }
 
-    if (bio || gender) {
-        toUpdate.publicMetadata = {};
-        if (bio) toUpdate.publicMetadata.bio = bio.trim();
-        if (gender) toUpdate.publicMetadata.gender = gender;
+    // Handle publicMetadata
+
+    if (bio) {
+        user.bio = bio.trim();
+    }
+    if (gender) {
+        user.gender = gender;
     }
 
+    // Handle profile image upload
     if (profileImage) {
         const uploadResponse = await uploadOnCloudinary(profileImage.path);
         if (!uploadResponse) {
             throw new ApiError(500, "Something went wrong while uploading profile image");
         }
-        if (!toUpdate.publicMetadata) {
-            toUpdate.publicMetadata = {};
-        }
-        toUpdate.publicMetadata.profileImage = uploadResponse.secure_url;
+        user.profileImage = uploadResponse.secure_url;
     }
 
-    // Now update directly in Clerk
-    await clerkClient.users.updateUser(clerkId, toUpdate);
-    res.status(200).json({ success: true, message: "Profile updated successfully" });
+    // Update in Clerk
+    await clerkClient.users.updateUser(clerkId, clerkUpdateData);
+
+    // Update in DB
+    await user.save();
+    res.status(200).json({ success: true, message: "Profile updated successfully", user });
 });
 
 export const deleteClerkProfile = asyncHandler(async (req, res) => {
