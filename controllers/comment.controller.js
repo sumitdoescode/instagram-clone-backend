@@ -50,6 +50,7 @@ export const createComment = asyncHandler(async (req, res) => {
 
     const { text } = req.body || {};
     if (!text || !text.trim()) {
+        console.log(text);
         throw new ApiError(400, "Comment text is required");
     }
 
