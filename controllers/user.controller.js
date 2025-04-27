@@ -4,6 +4,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
+import { Clerk } from "@clerk/backend";
 
 export const getOwnProfile = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId;
@@ -162,6 +163,18 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
     }
     await user.save();
     res.status(200).json({ success: true, message: "Profile updated successfully", user });
+});
+
+const clerkClient = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
+export const deleteClerkProfile = asyncHandler(async (req, res) => {
+    const clerkId = req.auth.userId;
+    const loggedInUser = await User.findOne({ clerkId }).select("_id");
+    if (!loggedInUser) {
+        throw new ApiError(404, "Logged-in user not found");
+    }
+
+    const deletedUser = await clerkClient.users.deleteUser(clerkId);
+    res.status(200).json({ success: true, message: "Clerk profile deleted successfully" });
 });
 
 export const recommendedUsers = asyncHandler(async (req, res) => {

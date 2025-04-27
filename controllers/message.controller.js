@@ -10,7 +10,7 @@ export const getMessages = asyncHandler(async (req, res) => {
     const { userId } = req.params;
 
     if (!isValidObjectId(userId)) {
-        throw new ApiError(400, "Invalid message id");
+        throw new ApiError(400, "Invalid User id");
     }
 
     const user = await User.findById(userId);
