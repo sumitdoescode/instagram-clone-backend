@@ -37,7 +37,7 @@ router.post(
                 console.log("user created webhook");
                 await User.create({
                     clerkId,
-                    username: username || email.split("@")[0],
+                    username: username,
                     email: email,
                     profileImage: image_url || "",
                     bio: public_metadata?.bio || "",
