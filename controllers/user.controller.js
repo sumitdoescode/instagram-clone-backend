@@ -85,7 +85,7 @@ export const getOwnBookmarks = asyncHandler(async (req, res) => {
                 commentsCount: { $size: "$bookmarks.comments" },
                 isLiked: { $in: [loggedInUser._id, "$bookmarks.likes"] },
                 isAuthor: { $eq: ["$bookmarks.author._id", loggedInUser._id] },
-                isBookmarked: { $in: ["$bookmarks._id", loggedInUser.bookmarks] },
+                isBookmarked: true, // hardcoded true because it's coming from bookmarks
             },
         },
         {
