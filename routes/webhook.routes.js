@@ -34,6 +34,7 @@ router.post(
 
         switch (eventType) {
             case "user.created":
+                console.log("user created webhook");
                 await User.create({
                     clerkId,
                     username: username || email.split("@")[0],
@@ -42,10 +43,10 @@ router.post(
                     bio: public_metadata?.bio || "",
                     gender: public_metadata?.gender || undefined,
                 });
-                console.log(`✅ [Clerk] User created: ${email}`);
                 break;
 
             case "user.updated":
+                console.log("user updated webhook");
                 await User.findOneAndUpdate(
                     { clerkId },
                     {
@@ -57,13 +58,11 @@ router.post(
                     },
                     { new: true }
                 );
-                console.log(`🔄 [Clerk] User updated: ${email}`);
                 break;
 
             case "user.deleted":
-                console.log("deleting user from webhooks");
+                console.log("user deleting webhook");
                 await User.findOneAndDelete({ clerkId });
-                console.log(`❌ [Clerk] User deleted: ${clerkId}`);
                 break;
 
             default:

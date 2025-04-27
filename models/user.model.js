@@ -1,4 +1,7 @@
 import mongoose, { Schema, model } from "mongoose";
+import Post from "./post.model.js";
+import Comment from "./comment.model.js";
+import Message from "./message.model.js";
 
 const userSchema = new Schema(
     {
@@ -70,4 +73,5 @@ userSchema.pre("findOneAndDelete", async function (next) {
 });
 
 const User = model("User", userSchema);
+
 export default User;
