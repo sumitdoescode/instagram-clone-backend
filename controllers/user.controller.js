@@ -159,12 +159,12 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
         if (!uploadResponse) {
             throw new ApiError(500, "Something went wrong while uploading profile image");
         }
-        toUpdate.imageUrl = uploadResponse.secure_url;
+        toUpdate.profileImageUrl = uploadResponse.secure_url;
     }
 
     // Now update directly in Clerk
     await clerkClient.users.updateUser(clerkId, toUpdate);
-    res.status(200).json({ success: true, message: "Profile updated successfully", user });
+    res.status(200).json({ success: true, message: "Profile updated successfully" });
 });
 
 export const deleteClerkProfile = asyncHandler(async (req, res) => {
