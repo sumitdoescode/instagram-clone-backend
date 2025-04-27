@@ -80,15 +80,22 @@ export const getPost = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId;
     const { postId } = req.params;
 
+    // Validate postId
     if (!isValidObjectId(postId)) {
         throw new ApiError(400, "Invalid post ID");
     }
 
-    const user = await User.findOne({ clerkId }).select("_id");
+    // Fetch user with bookmarks
+    const user = await User.findOne({ clerkId }).select("_id bookmarks").lean();
+
     if (!user) {
         throw new ApiError(404, "User not found");
     }
 
+    // ✅ Ensure bookmarks is always an array
+    const userBookmarks = Array.isArray(user.bookmarks) ? user.bookmarks : [];
+
+    // Aggregate the post
     const posts = await Post.aggregate([
         { $match: { _id: new mongoose.Types.ObjectId(postId) } },
 
@@ -101,38 +108,37 @@ export const getPost = asyncHandler(async (req, res) => {
                 as: "author",
             },
         },
-        { $unwind: "$author" },
-
-        // Add likesCount, commentCount, isLiked
         {
-            $addFields: {
-                likesCount: { $size: "$likes" },
-                isLiked: {
-                    $in: [user._id, "$likes"],
-                },
-                isBookmarked: {
-                    $in: ["$_id", user.bookmarks],
-                },
-                isAuthor: {
-                    $eq: ["$author._id", user._id], // ✅ Add this
-                },
+            $unwind: {
+                path: "$author",
+                preserveNullAndEmptyArrays: true,
             },
         },
 
-        // Lookup and populate comments with authors
+        // Add computed fields
+        {
+            $addFields: {
+                likesCount: { $size: { $ifNull: ["$likes", []] } },
+                isLiked: { $in: [user._id, { $ifNull: ["$likes", []] }] },
+                isBookmarked: { $in: ["$_id", userBookmarks] },
+                isAuthor: { $eq: ["$author._id", user._id] },
+            },
+        },
+
+        // Lookup and populate comments
         {
             $lookup: {
                 from: "comments",
                 let: { postId: "$_id" },
                 pipeline: [
-                    {
-                        $match: {
-                            $expr: { $eq: ["$post", "$$postId"] },
-                        },
-                    },
+                    { $match: { $expr: { $eq: ["$post", "$$postId"] } } },
+                    { $sort: { createdAt: -1 } }, // newest comments first
                     {
                         $lookup: {
                             from: "users",
+                            localField: "author",
+                            foreignField: "_id",
+                            as: "author",
                             pipeline: [
                                 {
                                     $project: {
@@ -142,9 +148,6 @@ export const getPost = asyncHandler(async (req, res) => {
                                     },
                                 },
                             ],
-                            localField: "author",
-                            foreignField: "_id",
-                            as: "author",
                         },
                     },
                     {
@@ -188,7 +191,7 @@ export const getPost = asyncHandler(async (req, res) => {
         },
     ]);
 
-    if (!posts || posts.length === 0) {
+    if (!posts.length) {
         throw new ApiError(404, "Post not found");
     }
 
