@@ -85,6 +85,7 @@ export const getOwnBookmarks = asyncHandler(async (req, res) => {
                 commentsCount: { $size: "$bookmarks.comments" },
                 isLiked: { $in: [loggedInUser._id, "$bookmarks.likes"] },
                 isAuthor: { $eq: ["$bookmarks.author._id", loggedInUser._id] },
+                isBookmarked: { $in: ["$bookmarks._id", loggedInUser.bookmarks] },
             },
         },
         {
@@ -100,6 +101,7 @@ export const getOwnBookmarks = asyncHandler(async (req, res) => {
                 commentsCount: 1,
                 isLiked: 1,
                 isAuthor: 1,
+                isBookmarked: 1,
                 author: {
                     _id: "$bookmarks.author._id",
                     username: "$bookmarks.author.username",
