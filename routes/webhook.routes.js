@@ -61,6 +61,7 @@ router.post(
                 break;
 
             case "user.deleted":
+                console.log("deleting user from webhooks");
                 await User.findOneAndDelete({ clerkId });
                 console.log(`❌ [Clerk] User deleted: ${clerkId}`);
                 break;

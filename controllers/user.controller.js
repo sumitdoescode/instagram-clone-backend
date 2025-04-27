@@ -123,7 +123,6 @@ export const getOwnBookmarks = asyncHandler(async (req, res) => {
 });
 
 export const editOwnProfile = asyncHandler(async (req, res) => {
-    console.log("coming inside editOwnProfile");
     const clerkId = req.auth.userId;
     const { username, bio, gender } = req.body || {};
     const profileImage = req.file;
@@ -166,7 +165,6 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
 });
 
 export const deleteClerkProfile = asyncHandler(async (req, res) => {
-    console.log("coming isnide delteeClerkProfile");
     const clerkId = req.auth.userId;
     const loggedInUser = await User.findOne({ clerkId }).select("_id");
     if (!loggedInUser) {
@@ -178,7 +176,6 @@ export const deleteClerkProfile = asyncHandler(async (req, res) => {
 });
 
 export const recommendedUsers = asyncHandler(async (req, res) => {
-    console.log("coming inside recommendedUsers");
     const clerkId = req.auth.userId;
 
     // 1. Find the current user with their following list
@@ -222,7 +219,6 @@ export const recommendedUsers = asyncHandler(async (req, res) => {
 });
 
 export const followOrUnfollowUser = asyncHandler(async (req, res) => {
-    console.log("coming inside followOrUnfollowUser");
     const clerkId = req.auth.userId;
 
     if (!clerkId) {
@@ -278,7 +274,6 @@ export const followOrUnfollowUser = asyncHandler(async (req, res) => {
 });
 
 export const getUserProfileById = asyncHandler(async (req, res) => {
-    console.log("coming inside getUserProfileById");
     const clerkId = req.auth.userId;
     const { id } = req.params;
     if (!isValidObjectId(id)) {
