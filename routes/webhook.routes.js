@@ -53,9 +53,9 @@ router.post(
                     {
                         username: username,
                         email: email,
-                        profileImage: image_url || "",
+                        profileImage: image_url,
                         bio: public_metadata?.bio || "",
-                        gender: public_metadata?.gender || undefined,
+                        gender: public_metadata?.gender || "male",
                     },
                     { new: true }
                 );
