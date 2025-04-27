@@ -171,6 +171,7 @@ export const deleteClerkProfile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Logged-in user not found");
     }
 
+    // deleting user from clerk
     const deletedUser = await clerkClient.users.deleteUser(clerkId);
     res.status(200).json({ success: true, message: "Clerk profile deleted successfully" });
 });

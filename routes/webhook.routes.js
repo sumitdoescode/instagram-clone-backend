@@ -42,8 +42,6 @@ router.post(
                     username: username,
                     email: email,
                     profileImage: image_url || "",
-                    bio: public_metadata?.bio || "",
-                    gender: public_metadata?.gender || undefined,
                 });
                 console.log("5. Successfully inserted user");
                 break;

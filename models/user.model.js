@@ -29,7 +29,6 @@ const userSchema = new Schema(
         },
         bio: {
             type: String,
-            minlength: [10, "Bio length should not be less than 10 characters"],
             maxlength: [300, "Bio length should not exceed 300 characters"],
             default: "",
         },
