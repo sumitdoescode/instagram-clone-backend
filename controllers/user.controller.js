@@ -48,6 +48,75 @@ export const getOwnProfile = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: "Own Profile Fetched successfully", user: user[0] });
 });
 
+export const getOwnBookmarks = asyncHandler(async (req, res) => {
+    const clerkId = req.auth.userId;
+    const loggedInUser = await User.findOne({ clerkId }).select("_id");
+    if (!loggedInUser) {
+        throw new ApiError(404, "Logged-in user not found");
+    }
+
+    const bookmarks = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(loggedInUser._id),
+            },
+        },
+        {
+            $lookup: {
+                from: "posts",
+                localField: "bookmarks",
+                foreignField: "_id",
+                as: "bookmarks",
+            },
+        },
+        { $unwind: "$bookmarks" },
+        {
+            $lookup: {
+                from: "users",
+                localField: "bookmarks.author",
+                foreignField: "_id",
+                as: "bookmarks.author",
+            },
+        },
+        { $unwind: "$bookmarks.author" }, // ✅ fix here
+        {
+            $addFields: {
+                likesCount: { $size: "$bookmarks.likes" },
+                commentsCount: { $size: "$bookmarks.comments" },
+                isLiked: { $in: [loggedInUser._id, "$bookmarks.likes"] },
+                isAuthor: { $eq: ["$bookmarks.author._id", loggedInUser._id] },
+            },
+        },
+        {
+            $sort: { "bookmarks.createdAt": -1 }, // ✅ sort bookmarks, not root doc
+        },
+        {
+            $project: {
+                _id: "$bookmarks._id",
+                caption: "$bookmarks.caption",
+                image: "$bookmarks.image",
+                createdAt: "$bookmarks.createdAt",
+                likesCount: 1,
+                commentsCount: 1,
+                isLiked: 1,
+                isAuthor: 1,
+                author: {
+                    _id: "$bookmarks.author._id",
+                    username: "$bookmarks.author.username",
+                    profileImage: "$bookmarks.author.profileImage",
+                    gender: "$bookmarks.author.gender",
+                },
+            },
+        },
+    ]);
+
+    res.status(200).json({
+        success: true,
+        message: "Bookmarks fetched successfully",
+        bookmarks,
+    });
+});
+
 export const editOwnProfile = asyncHandler(async (req, res) => {
     console.log("coming inside editOwnProfile");
     const clerkId = req.auth.userId;
