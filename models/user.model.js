@@ -43,5 +43,31 @@ const userSchema = new Schema(
     { timestamps: true }
 );
 
+userSchema.pre("findOneAndDelete", async function (next) {
+    const user = await this.model.findOne(this.getQuery());
+
+    if (!user) {
+        return next();
+    }
+
+    try {
+        // 1. User ke posts delete
+        await Post.deleteMany({ author: user._id });
+
+        // 2. User ke comments delete (agar comment ka model hai)
+        await Comment.deleteMany({ author: user._id });
+
+        // 3. Messages delete jaha user sender hai ya receiver hai
+        await Message.deleteMany({
+            $or: [{ senderId: user._id }, { receiverId: user._id }],
+        });
+
+        next();
+    } catch (err) {
+        console.error("Error in user pre delete middleware:", err);
+        next(err);
+    }
+});
+
 const User = model("User", userSchema);
 export default User;
