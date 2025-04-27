@@ -159,7 +159,10 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
         if (!uploadResponse) {
             throw new ApiError(500, "Something went wrong while uploading profile image");
         }
-        toUpdate.profileImageUrl = uploadResponse.secure_url;
+        if (!toUpdate.publicMetadata) {
+            toUpdate.publicMetadata = {};
+        }
+        toUpdate.publicMetadata.profileImage = uploadResponse.secure_url;
     }
 
     // Now update directly in Clerk
