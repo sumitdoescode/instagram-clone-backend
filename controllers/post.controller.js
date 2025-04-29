@@ -92,14 +92,12 @@ export const getPost = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
-    // ✅ Ensure bookmarks is always an array
     const userBookmarks = Array.isArray(user.bookmarks) ? user.bookmarks : [];
 
-    // Aggregate the post
     const posts = await Post.aggregate([
         { $match: { _id: new mongoose.Types.ObjectId(postId) } },
 
-        // Populate author
+        // Lookup author
         {
             $lookup: {
                 from: "users",
@@ -108,14 +106,9 @@ export const getPost = asyncHandler(async (req, res) => {
                 as: "author",
             },
         },
-        {
-            $unwind: {
-                path: "$author",
-                preserveNullAndEmptyArrays: true,
-            },
-        },
+        { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
 
-        // Add computed fields
+        // Compute post-related fields
         {
             $addFields: {
                 likesCount: { $size: { $ifNull: ["$likes", []] } },
@@ -125,14 +118,35 @@ export const getPost = asyncHandler(async (req, res) => {
             },
         },
 
-        // Lookup and populate comments
+        // Lookup and sort comments
         {
             $lookup: {
                 from: "comments",
-                let: { postId: "$_id" },
+                let: {
+                    postId: "$_id",
+                    currentUserId: user._id,
+                    postAuthorId: "$author._id",
+                },
                 pipeline: [
-                    { $match: { $expr: { $eq: ["$post", "$$postId"] } } },
-                    { $sort: { createdAt: -1 } }, // newest comments first
+                    {
+                        $match: {
+                            $expr: { $eq: ["$post", "$$postId"] },
+                        },
+                    },
+                    {
+                        $addFields: {
+                            sortWeight: {
+                                $cond: [
+                                    { $eq: ["$author", "$$currentUserId"] },
+                                    3,
+                                    {
+                                        $cond: [{ $eq: ["$author", "$$postAuthorId"] }, 2, 1],
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    { $sort: { sortWeight: -1, createdAt: -1 } },
                     {
                         $lookup: {
                             from: "users",
@@ -145,16 +159,13 @@ export const getPost = asyncHandler(async (req, res) => {
                                         _id: 1,
                                         username: 1,
                                         profileImage: 1,
+                                        gender: 1,
                                     },
                                 },
                             ],
                         },
                     },
-                    {
-                        $set: {
-                            author: { $first: "$author" },
-                        },
-                    },
+                    { $set: { author: { $first: "$author" } } },
                     {
                         $project: {
                             _id: 1,
