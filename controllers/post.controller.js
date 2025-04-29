@@ -179,7 +179,7 @@ export const getPost = asyncHandler(async (req, res) => {
                 isLiked: 1,
                 isBookmarked: 1,
                 isAuthor: 1,
-                commentCount: { $size: "$comments" },
+                commentsCount: { $size: "$comments" },
                 comments: 1,
                 author: {
                     _id: "$author._id",
