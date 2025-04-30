@@ -9,7 +9,8 @@ config();
 const app = express();
 
 // adding middlewares to our applications
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+// app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+app.use(cors({ origin: ["http://localhost:3000", process.env.CORS_ORIGIN], credentials: true }));
 express.urlencoded({ extended: true });
 app.use(cookieParser());
 app.use(clerkMiddleware());
