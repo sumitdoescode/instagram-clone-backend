@@ -5,9 +5,17 @@ import ApiError from "../utils/ApiError.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
 
-const searchUsers = asyncHandler(async (req, res) => {
-    const { searchQuery } = req.query;
-    const loggedInUser = await User.findOne({ clerkId: req.auth.userId });
+export const searchUsers = asyncHandler(async (req, res) => {
+    let { query } = req.query;
+    if (!query) {
+        throw new ApiError(400, "Search query is required");
+    }
+    query = query.trim().toLowerCase();
+    query = query.replace(/[^a-zA-Z0-9]/g, ""); // Remove special characters
+
+    const clerkId = req.auth.userId;
+
+    const loggedInUser = await User.findOne({ clerkId });
     if (!loggedInUser) {
         throw new ApiError(404, "Logged-in user not found");
     }
@@ -15,7 +23,7 @@ const searchUsers = asyncHandler(async (req, res) => {
     const users = await User.aggregate([
         {
             $match: {
-                $or: [{ username: { $regex: searchQuery, $options: "i" } }],
+                $or: [{ username: { $regex: query, $options: "i" } }],
             },
         },
         {
