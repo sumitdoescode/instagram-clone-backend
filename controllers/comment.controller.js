@@ -7,20 +7,75 @@ import Comment from "../models/comment.model.js";
 
 export const getPostComments = asyncHandler(async (req, res) => {
     const { postId } = req.params;
+    const clerkId = req.auth.userId;
 
+    // Validate postId
     if (!isValidObjectId(postId)) {
         throw new ApiError(400, "Invalid post ID");
     }
 
-    const post = await Post.findById(postId);
+    // Get logged-in user
+    const currentUser = await User.findOne({ clerkId }).select("_id").lean();
+    if (!currentUser) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Get post and post author
+    const post = await Post.findById(postId).select("author");
     if (!post) {
         throw new ApiError(404, "Post not found");
     }
 
-    const comments = await Comment.find({ post: postId }).sort({ createdAt: -1 }).populate({
-        path: "author",
-        select: "username profileImage",
-    });
+    const comments = await Comment.aggregate([
+        {
+            $match: {
+                post: new mongoose.Types.ObjectId(postId),
+            },
+        },
+        {
+            $addFields: {
+                sortWeight: {
+                    $cond: [
+                        { $eq: ["$author", currentUser._id] },
+                        3,
+                        {
+                            $cond: [{ $eq: ["$author", post.author] }, 2, 1],
+                        },
+                    ],
+                },
+                isAuthor: { $eq: ["$author", currentUser._id] },
+            },
+        },
+        { $sort: { sortWeight: -1, createdAt: -1 } },
+        {
+            $lookup: {
+                from: "users",
+                localField: "author",
+                foreignField: "_id",
+                as: "author",
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            username: 1,
+                            profileImage: 1,
+                            gender: 1,
+                        },
+                    },
+                ],
+            },
+        },
+        { $set: { author: { $first: "$author" } } },
+        {
+            $project: {
+                _id: 1,
+                text: 1,
+                createdAt: 1,
+                isAuthor: 1,
+                author: 1,
+            },
+        },
+    ]);
 
     res.status(200).json({
         success: true,

@@ -118,68 +118,7 @@ export const getPost = asyncHandler(async (req, res) => {
             },
         },
 
-        // Lookup and sort comments
-        {
-            $lookup: {
-                from: "comments",
-                let: {
-                    postId: "$_id",
-                    currentUserId: user._id,
-                    postAuthorId: "$author._id",
-                },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: { $eq: ["$post", "$$postId"] },
-                        },
-                    },
-                    {
-                        $addFields: {
-                            sortWeight: {
-                                $cond: [
-                                    { $eq: ["$author", "$$currentUserId"] },
-                                    3,
-                                    {
-                                        $cond: [{ $eq: ["$author", "$$postAuthorId"] }, 2, 1],
-                                    },
-                                ],
-                            },
-                        },
-                    },
-                    { $sort: { sortWeight: -1, createdAt: -1 } },
-                    {
-                        $lookup: {
-                            from: "users",
-                            localField: "author",
-                            foreignField: "_id",
-                            as: "author",
-                            pipeline: [
-                                {
-                                    $project: {
-                                        _id: 1,
-                                        username: 1,
-                                        profileImage: 1,
-                                        gender: 1,
-                                    },
-                                },
-                            ],
-                        },
-                    },
-                    { $set: { author: { $first: "$author" } } },
-                    {
-                        $project: {
-                            _id: 1,
-                            text: 1,
-                            createdAt: 1,
-                            author: 1,
-                        },
-                    },
-                ],
-                as: "comments",
-            },
-        },
-
-        // Final projection
+        // Final projection without comments
         {
             $project: {
                 _id: 1,
@@ -190,8 +129,6 @@ export const getPost = asyncHandler(async (req, res) => {
                 isLiked: 1,
                 isBookmarked: 1,
                 isAuthor: 1,
-                commentsCount: { $size: "$comments" },
-                comments: 1,
                 author: {
                     _id: "$author._id",
                     username: "$author.username",
@@ -212,7 +149,6 @@ export const getPost = asyncHandler(async (req, res) => {
         post: posts[0],
     });
 });
-
 export const createPost = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId;
 
