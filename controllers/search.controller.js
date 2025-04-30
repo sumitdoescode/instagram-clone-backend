@@ -7,6 +7,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 
 export const searchUsers = asyncHandler(async (req, res) => {
     let { query } = req.query;
+    console.log(query);
     if (!query) {
         throw new ApiError(400, "Search query is required");
     }
