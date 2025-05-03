@@ -11,7 +11,6 @@ router.post(
     "/clerk",
     express.raw({ type: "application/json" }),
     asyncHandler(async (req, res) => {
-        console.log("coming inside webhook.routes.js");
         const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
         const payload = req.body;
         const headers = req.headers;
@@ -19,16 +18,12 @@ router.post(
         const wh = new Webhook(WEBHOOK_SECRET);
 
         let event;
-        console.log("1. About to verify signature");
 
         try {
             event = wh.verify(payload, headers); // ✅ This is the proper way
-            console.log("2. Signature verified successfully");
         } catch (err) {
-            console.error("❌ Invalid Clerk webhook signature:", err.message);
             return res.status(400).send("Invalid signature");
         }
-        console.log("3. After signature verification, EventType:", event.type);
         const { type: eventType, data } = event;
         const { id: clerkId, username, email_addresses, image_url, public_metadata } = data;
 
@@ -36,14 +31,14 @@ router.post(
 
         switch (eventType) {
             case "user.created":
-                console.log("4. About to insert user into DB");
                 await User.create({
                     clerkId,
                     username: username,
                     email: email,
-                    profileImage: image_url || "",
+                    profileImage: {
+                        url: image_url || "",
+                    },
                 });
-                console.log("5. Successfully inserted user");
                 break;
 
             // case "user.updated":
@@ -62,12 +57,10 @@ router.post(
             //     break;
 
             case "user.deleted":
-                console.log("user deleting webhook");
                 await User.findOneAndDelete({ clerkId });
                 break;
 
             default:
-                console.log(`⚠️ [Clerk] Unhandled event type: ${eventType}`);
                 break;
         }
 

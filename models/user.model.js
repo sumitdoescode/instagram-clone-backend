@@ -2,6 +2,7 @@ import mongoose, { Schema, model } from "mongoose";
 import Post from "./post.model.js";
 import Comment from "./comment.model.js";
 import Message from "./message.model.js";
+import { deleteFromCloudinary } from "../utils/cloudinary.js";
 
 const userSchema = new Schema(
     {
@@ -24,8 +25,14 @@ const userSchema = new Schema(
             match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
         },
         profileImage: {
-            type: String,
-            default: "",
+            url: {
+                type: String,
+                default: "",
+            },
+            public_id: {
+                type: String,
+                default: "",
+            },
         },
         bio: {
             type: String,
@@ -53,6 +60,11 @@ userSchema.pre("findOneAndDelete", async function (next) {
     }
 
     try {
+        // Delete user profile image from Cloudinary
+        if (user.profileImage && user.profileImage.public_id) {
+            await deleteFromCloudinary(user.profileImage.public_id);
+        }
+
         // 1. User ke posts delete
         await Post.deleteMany({ author: user._id });
 

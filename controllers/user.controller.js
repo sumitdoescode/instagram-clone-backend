@@ -167,7 +167,15 @@ export const editOwnProfile = asyncHandler(async (req, res) => {
         if (!uploadResponse) {
             throw new ApiError(500, "Something went wrong while uploading profile image");
         }
-        user.profileImage = uploadResponse.secure_url;
+
+        // Delete old image from Cloudinary if it exists
+        if (user.profileImage && user.profileImage.public_id) {
+            await deleteFromCloudinary(user.profileImage.public_id);
+        }
+
+        // Update user profile image in DB
+        user.profileImage.url = uploadResponse.secure_url;
+        user.profileImage.public_id = uploadResponse.public_id;
     }
 
     // Update in Clerk

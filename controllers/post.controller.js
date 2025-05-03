@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 // import { getReceiverSocketId, io } from "../socket/socket.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import {} from "mongodb";
@@ -178,7 +178,10 @@ export const createPost = asyncHandler(async (req, res) => {
     // Create post
     const post = await Post.create({
         caption: caption.trim(),
-        image: cloudinaryRes.secure_url,
+        image: {
+            url: cloudinaryRes.secure_url,
+            public_id: cloudinaryRes.public_id,
+        },
         author: user._id,
     });
 
@@ -238,7 +241,15 @@ export const updatePost = asyncHandler(async (req, res) => {
         if (!cloudinaryRes) {
             throw new ApiError(500, "Something went wrong while uploading image");
         }
-        post.image = cloudinaryRes.secure_url;
+
+        // Delete old image from Cloudinary
+        if (post.image && post.image.public_id) {
+            await deleteFromCloudinary(post.image.public_id);
+        }
+
+        // Update post image in DB
+        post.image.url = cloudinaryRes.secure_url;
+        post.image.public_id = cloudinaryRes.public_id;
     }
 
     // Save updated post
@@ -279,6 +290,7 @@ export const deletePost = asyncHandler(async (req, res) => {
 
     // Delete the post
     await Post.findByIdAndDelete(postId);
+    await deleteFromCloudinary(post.image.public_id); // Delete image from Cloudinary
 
     // Remove the post ID from the user's posts array
     await User.findByIdAndUpdate(user._id, { $pull: { posts: postId } }, { new: true });
