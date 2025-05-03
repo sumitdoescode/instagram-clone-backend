@@ -2,6 +2,11 @@ import mongoose, { Schema, model } from "mongoose";
 
 const messageSchema = new Schema(
     {
+        conversationId: {
+            type: Schema.Types.ObjectId,
+            ref: "Conversation",
+            required: true,
+        },
         senderId: {
             type: Schema.Types.ObjectId,
             ref: "User",

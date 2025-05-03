@@ -22,6 +22,7 @@ import postRouter from "./routes/post.routes.js";
 import messageRouter from "./routes/message.routes.js";
 import commentRouter from "./routes/comment.routes.js";
 import searchRouter from "./routes/search.routes.js";
+import conversationRouter from "./routes/conversation.routes.js";
 import webhookRouter from "./routes/webhook.routes.js";
 
 // using routes
@@ -33,6 +34,7 @@ app.use("/api/v1/post", postRouter);
 app.use("/api/v1/message", messageRouter);
 app.use("/api/v1/comment", commentRouter);
 app.use("/api/v1/search", searchRouter);
+app.use("/api/v1/conversation", conversationRouter);
 app.use((req, res) => {
     res.status(404).json({
         success: false,
