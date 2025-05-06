@@ -283,7 +283,6 @@ export const deletePost = asyncHandler(async (req, res) => {
     if (post.author.toString() !== user._id.toString()) {
         throw new ApiError(403, "Unauthorized");
     }
-    console.log("coming here");
 
     // ✅ Trigger middleware
     await post.deleteOne(); // This runs pre("remove") hook
