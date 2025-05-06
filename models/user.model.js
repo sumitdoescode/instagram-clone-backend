@@ -54,31 +54,31 @@ const userSchema = new Schema(
 
 userSchema.pre("findOneAndDelete", async function (next) {
     const user = await this.model.findOne(this.getQuery());
-
-    if (!user) {
-        return next();
-    }
+    if (!user) return next();
 
     try {
-        // Delete user profile image from Cloudinary
-        if (user.profileImage && user.profileImage.public_id) {
+        // 1. Delete profile image from Cloudinary
+        if (user.profileImage?.public_id) {
             await deleteFromCloudinary(user.profileImage.public_id);
         }
 
-        // 1. User ke posts delete
-        await Post.deleteMany({ author: user._id });
+        // 2. Delete all posts by user (triggers postSchema.pre("remove"))
+        const posts = await Post.find({ author: user._id });
+        for (const post of posts) {
+            await post.remove();
+        }
 
-        // 2. User ke comments delete (agar comment ka model hai)
+        // 3. Delete comments made by the user
         await Comment.deleteMany({ author: user._id });
 
-        // 3. Messages delete jaha user sender hai ya receiver hai
+        // 4. Delete all messages where the user is sender or receiver
         await Message.deleteMany({
             $or: [{ senderId: user._id }, { receiverId: user._id }],
         });
 
         next();
     } catch (err) {
-        console.error("Error in user pre delete middleware:", err);
+        console.error("Error in user pre-delete middleware:", err);
         next(err);
     }
 });

@@ -36,20 +36,18 @@ const postSchema = new Schema(
 );
 
 // will delete post comments when post is deleted
-// will also delete comment if post is deleted by findByIdAndDelete method
-postSchema.pre("findOneAndDelete", async function (next) {
-    const post = await this.model.findOne(this.getQuery());
-    if (!post) {
-        return next();
+// will only trigger post.remove() method, not post.findOneAndDelete()
+postSchema.pre("remove", async function (next) {
+    try {
+        if (this.image?.public_id) {
+            await deleteFromCloudinary(this.image.public_id);
+        }
+        await Comment.deleteMany({ post: this._id });
+        next();
+    } catch (err) {
+        console.error("Error in post pre-remove middleware:", err);
+        next(err);
     }
-    // delete image from cloudinary
-    if (post.image && post.image.public_id) {
-        await deleteFromCloudinary(post.image.public_id);
-    }
-
-    // delete all comments related to this post
-    await Comment.deleteMany({ post: post._id });
-    next();
 });
 
 const Post = model("Post", postSchema);

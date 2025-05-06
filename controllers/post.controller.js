@@ -266,34 +266,29 @@ export const deletePost = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId; // Logged-in user's clerkId
     const { postId } = req.params;
 
-    // Validate postId format
     if (!isValidObjectId(postId)) {
         throw new ApiError(400, "Invalid post id");
     }
 
-    // Find post by ID
     const post = await Post.findById(postId);
     if (!post) {
         throw new ApiError(404, "Post not found");
     }
 
-    // Fetch user from clerkId to match with the post author
     const user = await User.findOne({ clerkId });
     if (!user) {
         throw new ApiError(404, "User not found");
     }
 
-    // Check if the logged-in user is the author of the post
     if (post.author.toString() !== user._id.toString()) {
         throw new ApiError(403, "Unauthorized");
     }
 
-    // Delete the post
-    await Post.findByIdAndDelete(postId); // delete the post from database
+    // ✅ Trigger middleware
+    await post.remove(); // This runs pre("remove") hook
+    // which will delete all the post Images from cloudinary and comments from DB
 
-    // already deleting the postImage from cloudinary in post model
-
-    // Remove the post ID from the user's posts array
+    // Clean up reference in user
     await User.findByIdAndUpdate(user._id, { $pull: { posts: postId } }, { new: true });
 
     return res.status(200).json({
@@ -303,7 +298,6 @@ export const deletePost = asyncHandler(async (req, res) => {
 });
 
 export const getUserPosts = asyncHandler(async (req, res) => {
-    console.log("coming inside getUserPosts controller");
     const clerkId = req.auth.userId;
 
     // Step 1: Get MongoDB user ID from clerkId
