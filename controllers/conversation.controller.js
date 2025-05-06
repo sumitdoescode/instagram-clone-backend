@@ -6,7 +6,7 @@ import { isValidObjectId } from "mongoose";
 import User from "../models/user.model.js";
 
 // GET all conversations for the logged-in user
-export const getConversations = asyncHandler(async (req, res) => {
+export const getAllConversations = asyncHandler(async (req, res) => {
     const clerkId = req.auth.userId;
 
     const user = await User.findOne({ clerkId });
