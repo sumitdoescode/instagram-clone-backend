@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import Comment from "./comment.model.js";
+import { deleteFromCloudinary } from "../utils/cloudinary.js";
 
 const postSchema = new Schema(
     {
@@ -37,8 +38,17 @@ const postSchema = new Schema(
 // will delete post comments when post is deleted
 // will also delete comment if post is deleted by findByIdAndDelete method
 postSchema.pre("findOneAndDelete", async function (next) {
-    const postId = this.getQuery()._id;
-    await Comment.deleteMany({ post: postId });
+    const post = await this.model.findOne(this.getQuery());
+    if (!post) {
+        return next();
+    }
+    // delete image from cloudinary
+    if (post.image && post.image.public_id) {
+        await deleteFromCloudinary(post.image.public_id);
+    }
+
+    // delete all comments related to this post
+    await Comment.deleteMany({ post: post._id });
     next();
 });
 

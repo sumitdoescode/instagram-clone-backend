@@ -289,7 +289,7 @@ export const deletePost = asyncHandler(async (req, res) => {
     }
 
     // Delete the post
-    await Post.findByIdAndDelete(postId);
+    await Post.findByIdAndDelete(postId); // delete the post from database
     await deleteFromCloudinary(post.image.public_id); // Delete image from Cloudinary
 
     // Remove the post ID from the user's posts array
