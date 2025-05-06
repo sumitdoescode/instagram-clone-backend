@@ -31,9 +31,9 @@ app.use(express.json());
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
-app.use("/api/v1/message", messageRouter);
 app.use("/api/v1/comment", commentRouter);
 app.use("/api/v1/search", searchRouter);
+app.use("/api/v1/message", messageRouter);
 app.use("/api/v1/conversation", conversationRouter);
 app.use((req, res) => {
     res.status(404).json({
