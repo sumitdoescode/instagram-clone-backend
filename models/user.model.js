@@ -65,7 +65,7 @@ userSchema.pre("findOneAndDelete", async function (next) {
         // 2. Delete all posts by user (triggers postSchema.pre("remove"))
         const posts = await Post.find({ author: user._id });
         for (const post of posts) {
-            await post.remove();
+            await post.deleteOne();
         }
 
         // 3. Delete comments made by the user
