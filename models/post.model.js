@@ -36,8 +36,7 @@ const postSchema = new Schema(
 );
 
 // will delete post comments when post is deleted
-// will only trigger post.remove() method, not post.findOneAndDelete()
-postSchema.pre("remove", async function (next) {
+postSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
     try {
         if (this.image?.public_id) {
             await deleteFromCloudinary(this.image.public_id);

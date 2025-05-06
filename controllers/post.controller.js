@@ -283,9 +283,10 @@ export const deletePost = asyncHandler(async (req, res) => {
     if (post.author.toString() !== user._id.toString()) {
         throw new ApiError(403, "Unauthorized");
     }
+    console.log("coming here");
 
     // ✅ Trigger middleware
-    await post.remove(); // This runs pre("remove") hook
+    await post.deleteOne(); // This runs pre("remove") hook
     // which will delete all the post Images from cloudinary and comments from DB
 
     // Clean up reference in user
