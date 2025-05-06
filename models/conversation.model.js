@@ -9,9 +9,8 @@ const conversationSchema = new Schema(
             },
         ],
         lastMessage: {
-            type: String,
-            required: true,
-            trim: true,
+            type: Schema.Types.ObjectId,
+            ref: "Message",
         },
     },
     { timestamps: true }

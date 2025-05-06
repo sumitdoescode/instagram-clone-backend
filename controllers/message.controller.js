@@ -37,12 +37,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
     if (!conversation) {
         conversation = await Conversation.create({
             participants: [sender._id, receiver._id],
-            lastMessage: message.trim(),
         });
-    } else {
-        conversation.lastMessage = message.trim();
-        conversation.updatedAt = Date.now();
-        await conversation.save();
     }
 
     // Step 2: Save message with conversationId
@@ -52,6 +47,10 @@ export const sendMessage = asyncHandler(async (req, res) => {
         receiverId: receiver._id,
         message: message.trim(),
     });
+
+    // Step 3: Update lastMessage to point to the new message
+    conversation.lastMessage = messageObj._id;
+    await conversation.save();
 
     res.status(201).json({
         success: true,
