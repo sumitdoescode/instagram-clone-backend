@@ -27,28 +27,64 @@ export const getAllConversations = asyncHandler(async (req, res) => {
 
 // GET a single conversation by ID (optional)
 export const getConversationById = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { conversationId } = req.params;
+    const clerkId = req.auth.userId;
 
-    const conversation = await Conversation.findById(id).populate("participants", "_id username name profilePic");
+    if (!isValidObjectId(conversationId)) {
+        throw new ApiError(400, "Invalid conversation ID");
+    }
 
-    if (!conversation) throw new ApiError(404, "Conversation not found");
+    // Check if the user is logged in
+    const currentUser = await User.findOne({ clerkId });
+    if (!currentUser) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Check if the conversation exists
+    const conversation = await Conversation.findById(conversationId).populate("participants", "_id username email profileImage"); // optional user info
+
+    if (!conversation) {
+        throw new ApiError(404, "Conversation not found");
+    }
+
+    // Check if the user is a participant in the conversation
+    if (!conversation.participants.includes(currentUser._id)) {
+        throw new ApiError(403, "Unauthorized: You can only view your own conversation");
+    }
 
     res.status(200).json({
         success: true,
+        message: "Conversation fetched successfully",
         conversation,
     });
 });
 
-// DELETE a conversation (optional archive or real delete)
+// DELETE a conversation
 export const deleteConversation = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { conversationId } = req.params;
+    const clerkId = req.auth.userId;
 
     if (!isValidObjectId(id)) {
         throw new ApiError(400, "Invalid conversation ID");
     }
 
-    const deleted = await Conversation.findByIdAndDelete(id);
-    if (!deleted) throw new ApiError(404, "Conversation not found");
+    // Check if the user is logged in
+    const currentUser = await User.findOne({ clerkId });
+    if (!currentUser) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const covnersation = await Conversation.findById(conversationId);
+    if (!covnersation) throw new ApiError(404, "Conversation not found");
+
+    // Check if the user is a participant in the conversation
+    if (!covnersation.participants.includes(currentUser._id)) {
+        throw new ApiError(403, "Unauthorized: You can only delete your own conversation");
+    }
+
+    // Delete all messages in the conversation
+    await Message.deleteMany({ conversationId });
+    await Conversation.findByIdAndDelete(conversationId);
 
     res.status(200).json({
         success: true,
