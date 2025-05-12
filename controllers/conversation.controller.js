@@ -82,7 +82,7 @@ export const deleteConversation = asyncHandler(async (req, res) => {
     const { conversationId } = req.params;
     const clerkId = req.auth.userId;
 
-    if (!isValidObjectId(id)) {
+    if (!isValidObjectId(conversationId)) {
         throw new ApiError(400, "Invalid conversation ID");
     }
 
