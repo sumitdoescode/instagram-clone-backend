@@ -20,21 +20,21 @@ export const getAllConversations = asyncHandler(async (req, res) => {
         .sort({ updatedAt: -1 })
         .lean(); // plain JS objects for easy filtering
 
-    const formattedConversations = conversations.map((conversation) => {
-        const otherUser = conversation.participants.find((p) => p._id.toString() !== user._id.toString());
+    // const formattedConversations = conversations.map((conversation) => {
+    //     const otherUser = conversation.participants.find((p) => p._id.toString() !== user._id.toString());
 
-        return {
-            _id: conversation._id,
-            participant: otherUser, // singular user, since it's 1-to-1
-            lastMessage: conversation.lastMessage,
-            updatedAt: conversation.updatedAt,
-        };
-    });
+    //     return {
+    //         _id: conversation._id,
+    //         participant: otherUser, // singular user, since it's 1-to-1
+    //         lastMessage: conversation.lastMessage,
+    //         updatedAt: conversation.updatedAt,
+    //     };
+    // });
 
     res.status(200).json({
         success: true,
         message: "Conversations fetched successfully",
-        conversations: formattedConversations,
+        conversations: conversations,
     });
 });
 

@@ -89,7 +89,7 @@ export const getMessages = asyncHandler(async (req, res) => {
     }
 
     // Step 2: Fetch messages by conversationId
-    const messages = await Message.find({ conversationId: conversation._id }).sort({ createdAt: 1 });
+    const messages = await Message.find({ conversationId: conversation._id }).sort({ createdAt: -1 });
 
     res.status(200).json({
         success: true,
