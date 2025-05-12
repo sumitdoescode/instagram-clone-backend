@@ -29,7 +29,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Message text is required");
     }
 
-    // Step 1: Find or create a conversation
+    // Step 1: Find or create the conversation
     let conversation = await Conversation.findOne({
         participants: { $all: [sender._id, receiver._id] },
     });
@@ -40,22 +40,20 @@ export const sendMessage = asyncHandler(async (req, res) => {
         });
     }
 
-    // Step 2: Save message with conversationId
+    // Step 2: Create the message
     const messageObj = await Message.create({
         conversationId: conversation._id,
         senderId: sender._id,
         receiverId: receiver._id,
-        message: message.trim(),
+        message,
     });
 
-    // Step 3: Update lastMessage to point to the new message
+    // Step 3: Update the last message in the conversation
     conversation.lastMessage = messageObj._id;
-    await conversation.save();
 
-    res.status(201).json({
+    res.status(200).json({
         success: true,
         message: "Message sent successfully",
-        message: messageObj,
     });
 });
 
