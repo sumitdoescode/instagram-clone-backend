@@ -12,24 +12,64 @@ export const getAllConversations = asyncHandler(async (req, res) => {
     const user = await User.findOne({ clerkId });
     if (!user) throw new ApiError(404, "User not found");
 
-    const conversations = await Conversation.find({
-        participants: user._id,
-    })
-        .populate("participants", "_id username email profileImage")
-        .populate("lastMessage")
-        .sort({ updatedAt: -1 })
-        .lean(); // plain JS objects for easy filtering
+    const conversations = await Conversation.aggregate([
+        // Match conversations where user is a participant
+        { $match: { participants: user._id } },
 
-    // const formattedConversations = conversations.map((conversation) => {
-    //     const otherUser = conversation.participants.find((p) => p._id.toString() !== user._id.toString());
+        // Sort by latest update
+        { $sort: { updatedAt: -1 } },
 
-    //     return {
-    //         _id: conversation._id,
-    //         participant: otherUser, // singular user, since it's 1-to-1
-    //         lastMessage: conversation.lastMessage,
-    //         updatedAt: conversation.updatedAt,
-    //     };
-    // });
+        // Lookup lastMessage details
+        {
+            $lookup: {
+                from: "messages",
+                localField: "lastMessage",
+                foreignField: "_id",
+                as: "lastMessage",
+            },
+        },
+        { $unwind: { path: "$lastMessage", preserveNullAndEmptyArrays: true } },
+
+        // Lookup participant details
+        {
+            $lookup: {
+                from: "users",
+                localField: "participants",
+                foreignField: "_id",
+                as: "participants",
+            },
+        },
+
+        // Add field for the "other participant"
+        {
+            $addFields: {
+                participant: {
+                    $first: {
+                        $filter: {
+                            input: "$participants",
+                            as: "p",
+                            cond: { $ne: ["$$p._id", user._id] },
+                        },
+                    },
+                },
+            },
+        },
+
+        // Final project
+        {
+            $project: {
+                _id: 1,
+                updatedAt: 1,
+                lastMessage: 1,
+                participant: {
+                    _id: 1,
+                    username: 1,
+                    email: 1,
+                    profileImage: 1,
+                },
+            },
+        },
+    ]);
 
     res.status(200).json({
         success: true,
@@ -52,28 +92,82 @@ export const getConversationById = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
-    const conversation = await Conversation.findById(conversationId).populate("participants", "_id username email profileImage").populate("lastMessage").lean();
+    const userId = currentUser._id;
 
-    if (!conversation) {
-        throw new ApiError(404, "Conversation not found");
+    const conversation = await Conversation.aggregate([
+        // Match the conversation by ID and ensure the user is a participant
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(conversationId),
+                participants: userId,
+            },
+        },
+
+        // Lookup the last message
+        {
+            $lookup: {
+                from: "messages",
+                localField: "lastMessage",
+                foreignField: "_id",
+                as: "lastMessage",
+            },
+        },
+        {
+            $unwind: {
+                path: "$lastMessage",
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+
+        // Lookup participant user details
+        {
+            $lookup: {
+                from: "users",
+                localField: "participants",
+                foreignField: "_id",
+                as: "participants",
+            },
+        },
+
+        // Add a field for the "other" participant (exclude current user)
+        {
+            $addFields: {
+                participant: {
+                    $first: {
+                        $filter: {
+                            input: "$participants",
+                            as: "p",
+                            cond: { $ne: ["$$p._id", userId] },
+                        },
+                    },
+                },
+            },
+        },
+
+        // Final shape of the response
+        {
+            $project: {
+                _id: 1,
+                updatedAt: 1,
+                lastMessage: 1,
+                participant: {
+                    _id: 1,
+                    username: 1,
+                    email: 1,
+                    profileImage: 1,
+                },
+            },
+        },
+    ]);
+
+    if (!conversation || conversation.length === 0) {
+        throw new ApiError(404, "Conversation not found or unauthorized");
     }
-
-    const isParticipant = conversation.participants.some((p) => p._id.toString() === currentUser._id.toString());
-    if (!isParticipant) {
-        throw new ApiError(403, "Unauthorized: You can only view your own conversations");
-    }
-
-    const otherUser = conversation.participants.find((p) => p._id.toString() !== currentUser._id.toString());
 
     res.status(200).json({
         success: true,
         message: "Conversation fetched successfully",
-        conversation: {
-            _id: conversation._id,
-            participant: otherUser,
-            lastMessage: conversation.lastMessage,
-            updatedAt: conversation.updatedAt,
-        },
+        conversation: conversation[0],
     });
 });
 
