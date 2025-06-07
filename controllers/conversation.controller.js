@@ -153,6 +153,7 @@ export const getConversationById = asyncHandler(async (req, res) => {
                 participant: {
                     _id: 1,
                     username: 1,
+                    gender: 1,
                     email: 1,
                     profileImage: 1,
                 },
