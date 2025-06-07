@@ -60,9 +60,7 @@ export const getAllConversations = asyncHandler(async (req, res) => {
             $project: {
                 _id: 1,
                 updatedAt: 1,
-                lastMessage: {
-                    message: 1,
-                },
+                lastMessage: "$lastMessage.message",
                 participant: {
                     _id: 1,
                     username: 1,
