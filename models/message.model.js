@@ -17,7 +17,7 @@ const messageSchema = new Schema(
             ref: "User",
             required: true,
         },
-        message: {
+        content: {
             type: String,
             trim: true,
             required: true,

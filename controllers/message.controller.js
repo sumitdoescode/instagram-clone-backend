@@ -24,8 +24,8 @@ export const sendMessage = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Receiver not found");
     }
 
-    const { message } = req.body || {};
-    if (!message || !message.trim()) {
+    const { content } = req.body || {};
+    if (!content || !content.trim()) {
         throw new ApiError(400, "Message text is required");
     }
 
@@ -45,10 +45,10 @@ export const sendMessage = asyncHandler(async (req, res) => {
         conversationId: conversation._id,
         senderId: sender._id,
         receiverId: receiver._id,
-        message,
+        content: content.trim(),
     });
 
-    // Step 3: Update the last message in the conversation
+    // Step 3: Update theg last messae in the conversation
     conversation.lastMessage = messageObj._id;
     await conversation.save();
 
