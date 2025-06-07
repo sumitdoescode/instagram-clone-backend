@@ -5,7 +5,9 @@ import { requireAuth } from "@clerk/express";
 const router = express.Router();
 
 // prefix = /api/v1/message
-router.get("/user/:userId", requireAuth(), getMessages); // get message by user id
-router.post("/user/:userId", requireAuth(), sendMessage); // send message to user by user id
+router.use(requireAuth()); // protect all routes
+
+router.get("/user/:userId", getMessages); // get message by user id
+router.post("/user/:userId", sendMessage); // send message to user by user id
 
 export default router;
