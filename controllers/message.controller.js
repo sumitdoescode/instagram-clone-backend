@@ -50,6 +50,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
 
     // Step 3: Update the last message in the conversation
     conversation.lastMessage = messageObj._id;
+    await conversation.save();
 
     res.status(200).json({
         success: true,
