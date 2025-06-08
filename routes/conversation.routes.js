@@ -9,6 +9,7 @@ router.use(requireAuth()); // protect all routes
 // prefix = /api/v1/conversation
 router.get("/", getAllConversations); // get all conversations for the logged-in user
 router.get("/:conversationId", getConversationById); // get a single conversation by ID
+// router.get("/:conversationId/messages", getConversationMessages); // get all messages in a conversation
 router.delete("/:conversationId", deleteConversation); // delete a conversation
 
 export default router;

@@ -89,20 +89,9 @@ export const getMessages = asyncHandler(async (req, res) => {
         });
     }
 
-    const senderMessages = await Message.find({
+    const messages = await Message.find({
         conversationId: conversation._id,
-        senderId: currentUser._id,
     }).sort({ createdAt: 1 });
-
-    const receiverMessages = await Message.find({
-        conversationId: conversation._id,
-        receiverId: currentUser._id,
-    }).sort({ createdAt: 1 });
-
-    const messages = {
-        senderMessages: senderMessages,
-        receiverMessages: receiverMessages,
-    };
 
     res.status(200).json({
         success: true,
