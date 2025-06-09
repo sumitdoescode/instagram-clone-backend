@@ -66,7 +66,7 @@ export const getMessages = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid User id");
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("_id username email profileImage gender");
     if (!user) {
         throw new ApiError(404, "User not found");
     }
@@ -81,6 +81,7 @@ export const getMessages = asyncHandler(async (req, res) => {
         participants: { $all: [currentUser._id, user._id] },
     });
 
+    // if there is no coversation then there are no messages
     if (!conversation) {
         return res.status(200).json({
             success: true,
@@ -89,6 +90,7 @@ export const getMessages = asyncHandler(async (req, res) => {
         });
     }
 
+    // find the message of that conversation
     const messages = await Message.find({
         conversationId: conversation._id,
     }).sort({ createdAt: 1 });
@@ -97,5 +99,6 @@ export const getMessages = asyncHandler(async (req, res) => {
         success: true,
         message: "Messages fetched successfully",
         messages,
+        user,
     });
 });
