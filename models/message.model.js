@@ -22,6 +22,10 @@ const messageSchema = new Schema(
             trim: true,
             required: true,
         },
+        isRead: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true }
 );

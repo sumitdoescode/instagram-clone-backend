@@ -30,6 +30,16 @@ export const getAllConversations = asyncHandler(async (req, res) => {
         },
         { $unwind: { path: "$lastMessage", preserveNullAndEmptyArrays: true } },
 
+        // Lookup all messages in this conversation
+        {
+            $lookup: {
+                from: "messages",
+                localField: "_id",
+                foreignField: "conversationId",
+                as: "allMessages",
+            },
+        },
+
         // Lookup participant details
         {
             $lookup: {
@@ -40,7 +50,7 @@ export const getAllConversations = asyncHandler(async (req, res) => {
             },
         },
 
-        // Add field for the "other participant"
+        // Add "other participant" and unread count
         {
             $addFields: {
                 participant: {
@@ -52,15 +62,27 @@ export const getAllConversations = asyncHandler(async (req, res) => {
                         },
                     },
                 },
+                unreadMessages: {
+                    $size: {
+                        $filter: {
+                            input: "$allMessages",
+                            as: "m",
+                            cond: {
+                                $and: [{ $eq: ["$$m.isRead", false] }, { $eq: ["$$m.receiverId", user._id] }],
+                            },
+                        },
+                    },
+                },
             },
         },
 
-        // Final project
+        // Final shape
         {
             $project: {
                 _id: 1,
                 updatedAt: 1,
                 lastMessage: "$lastMessage.message",
+                unreadMessages: 1,
                 participant: {
                     _id: 1,
                     username: 1,
@@ -74,7 +96,7 @@ export const getAllConversations = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         message: "Conversations fetched successfully",
-        conversations: conversations,
+        conversations,
     });
 });
 

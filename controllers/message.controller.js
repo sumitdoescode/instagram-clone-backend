@@ -46,6 +46,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
         senderId: sender._id,
         receiverId: receiver._id,
         content: content.trim(),
+        isRead: false,
     });
 
     // Step 3: Update theg last messae in the conversation
@@ -94,6 +95,16 @@ export const getMessages = asyncHandler(async (req, res) => {
     const messages = await Message.find({
         conversationId: conversation._id,
     }).sort({ createdAt: 1 });
+
+    // udpate those message where receiver is current user as read : true
+    await Message.updateMany(
+        { conversationId: conversation._id, receiverId: currentUser._id },
+        {
+            $set: {
+                isRead: true,
+            },
+        }
+    );
 
     res.status(200).json({
         success: true,
