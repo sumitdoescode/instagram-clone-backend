@@ -49,7 +49,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
         isRead: false,
     });
 
-    // Step 3: Update theg last messae in the conversation
+    // Step 3: Update the last messae in the conversation
     conversation.lastMessage = messageObj._id;
     await conversation.save();
 
